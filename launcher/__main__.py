@@ -2,14 +2,14 @@ import sys
 
 def main():
     # dispatcher
-    # - if this code is started instead of python interpreter (pyinstaller) call netsiohub module
+    # - if this code is started instead of python interpreter (python -u -m netsiohub [args])
+    #   continue as netsiohub (this happen with pyinstaller)
     # - otherwise continue to launcher module
-    if len(sys.argv) >=2 and sys.argv[1] == '-u':
+    if len(sys.argv) >=4 and sys.argv[1] == '-u' and sys.argv[2] == '-m' and sys.argv[3] == 'netsiohub':
         del sys.argv[1]
-    if len(sys.argv) >=3 and sys.argv[1] == '-m' and sys.argv[2] == 'netsiohub':
+        del sys.argv[1]
+        del sys.argv[1]
         import netsiohub.netsiohub as netsiohub
-        del sys.argv[1]
-        del sys.argv[1]
         return netsiohub.main() or 0
     else:
         try:

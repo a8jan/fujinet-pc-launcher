@@ -37,7 +37,7 @@ class ProcessMgr(threading.Thread):
         self.redirect = None
         # process is being stopped
         self.stopping = False
-        self.name = name if name else "Process" # "Process Manager"
+        self.name = name or "Process" # -> "Process Manager"
 
     def start_process(self):
         self.control_q.put(self.PROC_START)
@@ -121,10 +121,9 @@ class ProcessMgr(threading.Thread):
         # start fujinet process
         self.stopping = False
         self.log.write("Starting {}:\n  Command: {}\n  Directory: {}\n".format(self.name, self.proc_cmd, self.proc_cwd))
+        creationflags = 0
         if sys.platform == 'win32':
             creationflags = subprocess.CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP
-        else:
-            creationflags = 0
         # start process
         try:
             self.proc = subprocess.Popen(
@@ -201,8 +200,15 @@ class FujiNetMgr(ProcessMgr):
     def __init__(self, log):
         cwd = cfg.fujinet_rundir
         cmd = [cfg.fujinet_path]
+        # additional arguments
         if cfg.fujinet_listen_url is not None:
-            cmd.extend(["-u", "{}".format(cfg.fujinet_listen_url)])
+            cmd.extend(["-u", cfg.fujinet_listen_url])
+        if cfg.fnconfig:
+            # use specified fnconfig, if any
+            cmd.extend(["-c", cfg.fnconfig])
+        if cfg.sd_path:
+            # use specified SD path, if any
+            cmd.extend(["-s", cfg.sd_path])
         super().__init__(cmd, cwd, log, "FujiNet")
 
     def _proc_graceful_stop(self):
@@ -234,6 +240,10 @@ class NetSioMgr(ProcessMgr):
     def __init__(self, log):
         cwd = cfg.netsio_rundir
         cmd = [sys.executable, "-u", "-m", cfg.netsio_module]
+        if cfg.atdev_port:
+            cmd.extend(['--port', str(cfg.atdev_port)])
+        if cfg.netsio_port:
+            cmd.extend(['--netsio-port', str(cfg.netsio_port)])
         super().__init__(cmd, cwd, log, "NetSIO hub")
 
     def _proc_graceful_stop(self):
@@ -257,11 +267,12 @@ class Redirect(threading.Thread):
             if line:
                 # # sys.stdout.write(line.decode())
                 # # sys.stdout.flush()
-                try:
-                    self.output.write(line.decode())
-                except UnicodeDecodeError:
-                    # self.output.write(line.decode(errors='ignore').encode('ascii', 'backslashreplace'))
-                    self.output.write(line.decode(errors='ignore'))
+                self.output.write(line.decode(errors='backslashreplace'))
+                # try:
+                #     self.output.write(line.decode())
+                # except UnicodeDecodeError:
+                #     # self.output.write(line.decode(errors='ignore').encode('ascii', 'backslashreplace'))
+                #     self.output.write(line.decode(errors='ignore'))
             else:
                 break
         self.output.write("EOF\n")

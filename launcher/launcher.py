@@ -1,12 +1,13 @@
-
 import wx
 import wx.adv
 import sys
-from pathlib import Path
+import requests
 
 from launcher.config import cfg
-from launcher.logview import LogFrame
+from launcher.logview import Logger, LogFrame
 from launcher.procmgr import ProcessMgr, FujiNetMgr, NetSioMgr
+
+from typing import Union
 
 
 def new_id():
@@ -18,7 +19,6 @@ try:
     TestId = new_id()
 except AttributeError:
     new_id = wx.NewId
-
 
 # workaround for DeprecationWarning: an integer is required (got type WindowIDRef)
 if hasattr(wx._core, 'WindowIDRef'):
@@ -53,19 +53,19 @@ class LedIndicator(wx.Window):
             gc.Clear()
 
         pen = wx.Pen('#606060')
-        r = min(self.Size.width, self.Size.height)//3 - 1
+        r = min(self.Size.width, self.Size.height) // 3 - 1
         if self.active ^ self.transitioning:
             color = self.GetForegroundColour()
             # pen = wx.TRANSPARENT_PEN
             # r = min(self.Size.width, self.Size.height)//3
-        else:    
+        else:
             color = '#716c5d'
             # pen = wx.Pen('#606060')
             # r = min(self.Size.width, self.Size.height)//4
         # draw circle
         gc.SetPen(pen)
         gc.SetBrush(wx.Brush(color))
-        gc.DrawCircle(self.Size.width//2, self.Size.height//2, r)
+        gc.DrawCircle(self.Size.width // 2, self.Size.height // 2, r)
 
     def on_erase(self, evt):
         pass
@@ -96,6 +96,18 @@ class FnButton(wx.Button):
         if 'style' not in kwargs:
             kwargs['style'] = wx.NO_BORDER
         wx.Button.__init__(self, *args, **kwargs)
+        if 'size' not in kwargs:
+            # w1, h = self.GetTextExtent("MM")
+            # w2, h = self.GetTextExtent("MMMM")
+            label = kwargs.get('label')
+            if not label or len(label) <= 1:
+                w = 44
+            elif len(label) <= 3:
+                w = 80
+            else:
+                w = 100
+            self.SetSize(int(w * cfg.gui_scale), int(40 * cfg.gui_scale))
+        # print(kwargs.get('label'), self.GetSize())
         self.bg_color = (56, 53, 53, 255)
         self.bg_color_hover = '#000'
         self.bg_color_active = '#a67301'
@@ -122,14 +134,13 @@ class FnButton(wx.Button):
 def scale_bitmap(bmp, factor):
     img = bmp.ConvertToImage().Scale(
         bmp.Width * factor,
-        bmp.Height * factor, 
+        bmp.Height * factor,
         wx.IMAGE_QUALITY_HIGH
     )
     return wx.Bitmap(img)
 
 
 class TopFrame(wx.Frame):
-
     MENU_FN_WEBUI = new_id()
     MENU_FN_START = new_id()
     MENU_FN_STOP = new_id()
@@ -152,17 +163,21 @@ class TopFrame(wx.Frame):
         #     self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
         self.SetBackgroundStyle(wx.BG_STYLE_PAINT)
 
-        self.Create(parent, wx.ID_ANY, "FujiNet-PC", 
-            style=wx.FRAME_SHAPED | wx.SIMPLE_BORDER |
-            # this allows to minimize shaped window by clicking its icon on task bar
-            (wx.MINIMIZE_BOX if wx.Platform == '__WXMSW__' else 0))
-
-        self.Bind(wx.EVT_PAINT, self.on_paint)
-        self.stay_on_top = False
-        self.delta = (0, 0)
-
+        # configured label, if any
+        self.label = cfg.launcher_label
         # GUI scale
         self.scale = cfg.gui_scale
+        # Stay on top window
+        self.stay_on_top = cfg.stay_on_top
+
+        self.Create(parent, wx.ID_ANY, self.label or "FujiNet-PC",
+                    style=wx.FRAME_SHAPED | wx.SIMPLE_BORDER |
+                    (wx.STAY_ON_TOP if self.stay_on_top else 0) |
+                    # this allows to minimize shaped window by clicking its icon on task bar
+                    (wx.MINIMIZE_BOX if wx.Platform == '__WXMSW__' else 0))
+
+        self.Bind(wx.EVT_PAINT, self.on_paint)
+        self.delta = (0, 0)
 
         self.icons = wx.IconBundle(cfg.image_path("launcher-bg.ico"))
         if not self.icons.IsEmpty():
@@ -176,49 +191,59 @@ class TopFrame(wx.Frame):
 
         self.set_window_shape()
 
-        # Log viewer window
-        self.log_view = LogFrame(self, self)
-        if not self.icons.IsEmpty():
-            self.log_view.SetIcons(self.icons)
+        # our logger with connection to main window and log window
+        self.log = Logger(self)
+        # create log window
+        # self.log_view = LogFrame(self)
+        # self.log_view.SetIcons(self.icons)
+        # self.log_view.set_logger(self.log)
+        self.log_view: Union[LogFrame, None] = None
+
+        # label font
+        self.label_font = wx.Font()
+        self.label_font.SetFamily(wx.FONTFAMILY_DEFAULT)
+        self.label_font.SetPixelSize((0, int(32 * self.scale)))
+        self.label_font.SetWeight(wx.FONTWEIGHT_BOLD)
 
         def led_size():
-            return int(32*self.scale), int(32*self.scale)
+            return int(32 * self.scale), int(32 * self.scale)
 
         def led_pos(x, y):
             w, h = led_size()
-            return int(x*self.scale-w/2), int(y*self.scale-h/2)
+            return int(x * self.scale - w / 2), int(y * self.scale - h / 2)
 
         # LEDs
         # Power - on for running fujinet
-        self.power_led = LedIndicator(self, pos=led_pos(54, 70), size=led_size())
+        self.power_led = LedIndicator(self, pos=led_pos(54, 75), size=led_size())
         self.power_led.SetForegroundColour('#FFFFFF')
         self.set_power_led(False)
         # Wi-Fi - on for running netsiohub
-        self.wifi_led = LedIndicator(self, pos=led_pos(116, 70), size=led_size())
+        self.wifi_led = LedIndicator(self, pos=led_pos(116, 75), size=led_size())
         self.wifi_led.SetForegroundColour('#04DBFE')
         self.set_wifi_led(False)
         # SIO - on for command being processed
-        self.sio_led = LedIndicator(self, pos=led_pos(268, 70), size=led_size())
+        self.sio_led = LedIndicator(self, pos=led_pos(268, 75), size=led_size())
         self.sio_led.SetForegroundColour('#FEA304')
         self.set_sio_led(False)
 
         # Buttons
         # Power
-        self.quit_bnt = FnButton(self, label="Off", pos=(16*self.scale, 206*self.scale), size=(48, 24))
+        self.quit_bnt = FnButton(self, label="Off", pos=(18 * self.scale, 202 * self.scale))
         self.quit_bnt.SetToolTip("Quit")
         self.quit_bnt.Bind(wx.EVT_BUTTON, self.on_quit)
         # SD card
-        self.sd_bnt = FnButton(self, label="SD", pos=(bmp_size.width-16*self.scale-48, 206*self.scale), size=(48, 24))
+        self.sd_bnt = FnButton(self, label="SD", pos=(bmp_size.width - (20 + 80) * self.scale, 202 * self.scale))
         self.sd_bnt.SetToolTip("Open SD Card folder")
         self.sd_bnt.Bind(wx.EVT_BUTTON, lambda e: self.open_sd_folder())
         # # Button A
-        # a_bnt = wx.Button(self, label="A", pos=(34, 12), size=(32, 32))
-        # a_bnt.SetToolTip("TBD")
+        self.a_bnt = FnButton(self, label="A", pos=(32 * self.scale, 16 * self.scale))
+        self.a_bnt.SetToolTip("Swap disks")
+        self.a_bnt.Bind(wx.EVT_BUTTON, self.on_swap_btn)
         # # Button B
-        # b_bnt = wx.Button(self, label="B", pos=(88, 12), size=(32, 32))
+        # b_bnt = wx.Button(self, label="B", pos=(88, 12))
         # b_bnt.SetToolTip("TBD")
         # Button C
-        self.c_bnt = FnButton(self, label="Reset", pos=(bmp_size.width-16*self.scale-54, 14*self.scale), size=(54, 24))
+        self.c_bnt = FnButton(self, label="Reset", pos=(bmp_size.width - (16 + 100) * self.scale, 16 * self.scale))
         self.c_bnt.SetToolTip("Restart FujiNet")
         self.c_bnt.Bind(wx.EVT_BUTTON, lambda e: self.fujinet.restart_process())
 
@@ -259,7 +284,6 @@ class TopFrame(wx.Frame):
         self.Bind(wx.EVT_LEFT_UP, self.on_left_up)
         self.Bind(wx.EVT_MOTION, self.on_mouse_move)
 
-
         # # hot keys - does not work on mac and linux if there is no panel inside frame :(
         # self.SetAcceleratorTable(wx.AcceleratorTable(
         #     [
@@ -267,6 +291,8 @@ class TopFrame(wx.Frame):
         #     ]))
 
         # start fujinet-pc and netsiohub proceses if configured to auto-start
+        self.fujinet = FujiNetMgr(self.log)
+        self.netsio = NetSioMgr(self.log)
         self.start_tasks()
 
         # dc = wx.ClientDC(self)
@@ -285,6 +311,11 @@ class TopFrame(wx.Frame):
             dc.DrawBitmap(self.bmp, -1, -1, True)
         else:
             dc.DrawBitmap(self.bmp, 0, 0, True)
+        if self.label:
+            dc.SetTextForeground((56, 53, 53))
+            dc.SetFont(self.label_font)
+            w, h = dc.GetTextExtent(self.label)
+            dc.DrawText(self.label, (self.Size.width - w) // 2, int(105 * self.scale))
 
     def on_active(self, evt):
         self.SetTransparent(255 if evt.Active else 192)
@@ -293,10 +324,8 @@ class TopFrame(wx.Frame):
 
     def start_tasks(self):
         # start fujinet-pc process manager (thread)
-        self.fujinet = FujiNetMgr(self.log_view.logger)
         self.fujinet.start()
         # start netsiohub process manager (thread)
-        self.netsio = NetSioMgr(self.log_view.logger)
         self.netsio.start()
         # fujinet and netsio alive check
         self.alive_timer.Start(500)
@@ -360,6 +389,7 @@ class TopFrame(wx.Frame):
         self.Iconize()
         self.sd_bnt.Disable()
         self.quit_bnt.Disable()
+        self.a_bnt.Disable()
         self.c_bnt.Disable()
         self.stop_tasks()
 
@@ -443,7 +473,7 @@ class TopFrame(wx.Frame):
         elif eid == self.MENU_FN_RESTART:
             if not self.fujinet.is_alive():
                 # recovery from control thread death
-                self.fujinet = FujiNetMgr(self.log_view.logger)
+                self.fujinet = FujiNetMgr(self.log)
                 self.fujinet.start()
             self.fujinet.restart_process()
         elif eid == self.MENU_HUB_START:
@@ -453,7 +483,7 @@ class TopFrame(wx.Frame):
         elif eid == self.MENU_HUB_RESTART:
             if not self.netsio.is_alive():
                 # recovery from control thread death
-                self.netsio = NetSioMgr(self.log_view.logger)
+                self.netsio = NetSioMgr(self.log)
                 self.netsio.start()
             self.netsio.restart_process()
         if eid == self.MENU_SD_OPEN:
@@ -467,6 +497,17 @@ class TopFrame(wx.Frame):
         elif eid == wx.ID_ABOUT:
             self.show_about()
 
+    def on_swap_btn(self, event):
+        # TODO use procmgr to handle API call in separate thread
+        self.log.write("API call: {}\n".format(cfg.fujinet_api_swap))
+        try:
+            r = requests.get(cfg.fujinet_api_swap, timeout=1)
+            d = r.json()
+        except Exception as e:
+            self.log.write("API call failed: {}\n".format(e))
+        else:
+            self.log.write("API response: {}\n".format(d))
+
     def toggle_stay_on_top(self):
         self.stay_on_top = not self.stay_on_top
         style = self.GetWindowStyle()
@@ -474,10 +515,11 @@ class TopFrame(wx.Frame):
         self.SetWindowStyle(style)
 
     def open_sd_folder(self):
-        wx.LaunchDefaultBrowser('file:{}'.format(cfg.fujinet_SD_path))
+        self.log.write('Open file:{}'.format(cfg.fujinet_sd_folder))
+        wx.LaunchDefaultBrowser('file:{}'.format(cfg.fujinet_sd_folder))
 
     def select_sd_folder(self):
-        new_sd_dir = wx.DirSelector("Choose SD folder", cfg.fujinet_SD_path)
+        new_sd_dir = wx.DirSelector("Choose SD folder", cfg.fujinet_sd_folder)
         if new_sd_dir.strip():
             print("new SD", new_sd_dir)
 
@@ -493,10 +535,10 @@ class TopFrame(wx.Frame):
         info.SetVersion("0.1")
         # info.SetDescription(version.DESC)
         info.SetDescription("This launcher program controls FujiNet-PC and NetSIO hub.\n\n"
-        "FujiNet-PC is a port of #FujiNet firmware to Linux, macOS and Windows.\n\n"
-        "NetSIO hub is a complementary program to bridge a communication between\n"
-        "FujiNet or FujiNet-PC and Atari 8-bit computer emulator like Altirra.\n\n"
-        )
+                            "FujiNet-PC is a port of #FujiNet firmware to Linux, macOS and Windows.\n\n"
+                            "NetSIO hub is a complementary program to bridge a communication between\n"
+                            "FujiNet or FujiNet-PC and Atari 8-bit computer emulator like Altirra.\n\n"
+                            )
         info.SetCopyright('(C) 2022 apc')
         info.SetWebSite('https://fujinet.online/')
         # info.SetLicence(license)
@@ -505,9 +547,10 @@ class TopFrame(wx.Frame):
 
     def show_log(self):
         if self.log_view is None:
-            self.log_view = LogFrame(self, self)
-            if not self.icons.IsEmpty():
-                self.log_view.SetIcons(self.icons)
+            # re-create log window
+            self.log_view = LogFrame(self)
+            self.log_view.SetIcons(self.icons)
+            self.log_view.set_logger(self.log)
         self.log_view.Show()
         self.log_view.Raise()
 
@@ -529,7 +572,8 @@ class MyApp(wx.App):
         self.SetTopWindow(frame)
         frame.Show(True)
         return True
-        
+
+
 def main():
     print("__file__:", __file__)
     print("sys.executable:", sys.executable)
@@ -538,5 +582,9 @@ def main():
     print("\n".join(sys.path))
     print("sys.argv", sys.argv)
 
+    # parse command line
+    cfg.parse_args()
+
+    # run app
     app = MyApp()
     app.MainLoop()

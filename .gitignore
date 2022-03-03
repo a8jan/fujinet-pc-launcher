@@ -1,6 +1,7 @@
 # links/dirs used for testing with fujinet-pc
 fujinet-pc
 fujinet-pc-*
+FujiNet-*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
