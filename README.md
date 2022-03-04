@@ -2,13 +2,12 @@
 
 Simple launcher GUI to control [FujiNet-PC](https://github.com/FujiNetWIFI/fujinet-pc) and [NetSIO hub](https://github.com/FujiNetWIFI/fujinet-emulator-bridge). Brings #FujiNet experience into [Altirra](https://virtualdub.org/altirra.html) Atari emulator in easy way.
 
-![Launcher](fujinet-pc-launcher.png)
+![Launcher](launcher.png)
 
 Written in Python, using wxWidgets for GUI. It can run on Windows, macOS and Linux.
 
 ![Launcher on Windows](launcher-windows.png)
 ![Launcher on macOS](launcher-macos.png)
-![Launcher on Linux](launcher-linux.png)
 
 ## What does Fujinet-PC Launcher?
 - FujiNet-PC is launched in background upon start
