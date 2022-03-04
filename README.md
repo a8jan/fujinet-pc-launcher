@@ -1,11 +1,21 @@
 # FujiNet-PC Launcher
 
-Simple launcher GUI to control FujiNet-PC and NetSIO hub.
+Simple launcher GUI to control [FujiNet-PC](https://github.com/FujiNetWIFI/fujinet-pc) and [NetSIO hub](https://github.com/FujiNetWIFI/fujinet-emulator-bridge). Brings #FujiNet experience into [Altirra](https://virtualdub.org/altirra.html) Atari emulator in easy way.
 
-## Build
+![Launcher](fujinet-pc-launcher.png)
 
-### Windows
+Written in Python, using wxWidgets for GUI. It can run on Windows, macOS and Linux.
 
-```cmd
-pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher\images\launcher-bg.ico --add-data launcher\images;images  launcher\__main__.py
-```
+![Launcher on Windows](launcher-windows.png)
+![Launcher on macOS](launcher-macos.png)
+![Launcher on Linux](launcher-linux.png)
+
+## What does Fujinet-PC Launcher?
+- FujiNet-PC is launched in background upon start
+- NetSIO hub is launched in background to bridge FujiNet into Atari emulator
+- Monitors both programs, user can stop them and/or restart them
+- Quick way to navigate to FujiNet-PC "SD Card" folder
+- Quick way to open FujiNet WebUI in default web browser
+- Live logs are available via Log window
+- Status LED's
+- Command line options
