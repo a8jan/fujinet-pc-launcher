@@ -44,7 +44,7 @@ To boot from FujiNet (acting as D1:), similar to real Atari, there cannot be mul
 
 ![7-boot](img/7-boot.png)
 
-To simulate power cycle of both Atari and Fujinet one can use `Cold Reset`. To "power cycle" Atari only use `Cold Reset (Computer Only)`.
+To simulate power cycle of both Atari and FujiNet one can use `Cold Reset`. To "power cycle" Atari only use `Cold Reset (Computer Only)`.
 
 
 Enjoy!
