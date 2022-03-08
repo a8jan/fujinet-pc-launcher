@@ -25,4 +25,6 @@ Note: Wine can be used run Altirra on macOS and Linux.
   * parameters to control SD folder, config file, network ports
   * allows multiple Altirra-FujiNet instances to run simultaneously
 
+## Installation
+
 Check the instructions [here](Install.md) to get it running (currently only Windows, rest will follow).
