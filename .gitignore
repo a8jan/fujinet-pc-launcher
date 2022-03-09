@@ -1,6 +1,8 @@
 # links/dirs used for testing with fujinet-pc
 fujinet-pc
-fujinet-pc-*
+fujinet-pc-ubuntu*
+fujinet-pc-windows*
+fujinet-pc-macos*
 FujiNet-*
 netsiohub
 

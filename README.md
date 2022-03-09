@@ -11,7 +11,8 @@ Written in Python, using wxWidgets for GUI. It can run on Windows, macOS and Lin
 ![Launcher on Windows](img/launcher-windows.png)
 ![Launcher on macOS](img/launcher-macos.png)
 
-Note: Wine can be used run Altirra on macOS and Linux.
+Note: Wine can be used to run Altirra on macOS and Linux.
+
 ## What does Fujinet-PC Launcher do?
 - FujiNet-PC is launched in background
 - NetSIO hub is launched in background to bridge FujiNet into Atari emulator
