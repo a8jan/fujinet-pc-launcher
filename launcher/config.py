@@ -133,11 +133,32 @@ class Config:
         arg_parser.add_argument('-s', '--sd', type=str, help='Path to SD directory (SD)')
         arg_parser.add_argument('-p', '--port', type=int, help='TCP port used by Altirra NetSIO custom device (9996)')
         arg_parser.add_argument('-r', '--netsio-port', type=int, help='UDP port used by NetSIO peripherals (9997)')
+        # -i N is shortcut for -l FujiNet-N -u localhost:8000+N -c FujiNet-N/fnconfig.ini -s FujiNet-N/SD -r 9000+N -p 10000+N"
+        arg_parser.add_argument('-i', '--instance', type=int, help="FujiNet instance ID")
         arg_parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Log emulation device commands')
         arg_parser.add_argument('-d', '--debug', dest='debug', action='store_true', help='Print debug output')
         args = arg_parser.parse_args()
 
         # alter configuration
+        if args.instance is not None:
+            if 1 <= args.instance <= 999:
+                name = "FujiNet-{}".format(args.instance)
+                self.launcher_label = name
+                print("label:", self.launcher_label)
+                self.fnconfig = os.path.join(os.path.dirname(self.launcher_dir), name, "fnconfig.ini")
+                print("fnconfig:", self.fnconfig)
+                self.sd_path = os.path.join(os.path.dirname(self.launcher_dir), name, "SD")
+                print("SD:", self.sd_path)
+                self.fujinet_webui_host = "localhost"
+                self.fujinet_webui_port = 8000+args.instance
+                print("WebUI host:", self.fujinet_webui_host, "port:", self.fujinet_webui_port)
+                self.netsio_port = 9000+args.instance
+                print("NetSIO port:", self.netsio_port)
+                self.atdev_port = 10000+args.instance
+                print("AtDev port:", self.atdev_port)
+            else:
+                print("Instance number {} is out of range 1-999, ignoring".format(args.instance))
+
         if args.label is not None:
             self.launcher_label = args.label
             print("label:", self.launcher_label)
