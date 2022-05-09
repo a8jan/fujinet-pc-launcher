@@ -533,13 +533,8 @@ class TopFrame(wx.Frame):
         info.SetName(version.NAME)
         info.SetVersion(version.VERSION)
         info.SetDescription(version.DESCRIPTION)
-        info.SetDescription("This launcher program controls FujiNet-PC and NetSIO hub.\n\n"
-                            "FujiNet-PC is a port of #FujiNet firmware to Linux, macOS and Windows.\n\n"
-                            "NetSIO hub is a complementary program to bridge a communication between\n"
-                            "FujiNet or FujiNet-PC and Atari 8-bit computer emulator like Altirra.\n\n"
-                            )
-        info.SetCopyright('(C) 2022 apc')
-        info.SetWebSite('https://github.com/a8jan/fujinet-pc-launcher')
+        info.SetCopyright(version.COPYRIGHT)
+        info.SetWebSite(version.WEBSITE)
         # info.SetLicence(license)
         # info.AddDeveloper("Jan Krupa")
         wx.adv.AboutBox(info, self)
