@@ -578,6 +578,7 @@ def main():
 
     # parse command line
     cfg.parse_args()
+    sys.argv[0]=cfg.launcher_label or "FujiNet-PC"  # WTF trick to set WM_CLASS for gnome-shell
 
     # run app
     app = MyApp()
