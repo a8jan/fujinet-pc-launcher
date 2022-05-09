@@ -6,6 +6,7 @@ import requests
 from launcher.config import cfg
 from launcher.logview import Logger, LogFrame
 from launcher.procmgr import ProcessMgr, FujiNetMgr, NetSioMgr
+import launcher.version as version
 
 from typing import Union
 
@@ -101,7 +102,7 @@ class FnButton(wx.Button):
             # w2, h = self.GetTextExtent("MMMM")
             label = kwargs.get('label')
             if not label or len(label) <= 1:
-                w = 44
+                w = 60
             elif len(label) <= 3:
                 w = 80
             else:
@@ -133,8 +134,8 @@ class FnButton(wx.Button):
 
 def scale_bitmap(bmp, factor):
     img = bmp.ConvertToImage().Scale(
-        bmp.Width * factor,
-        bmp.Height * factor,
+        int(bmp.Width * factor),
+        int(bmp.Height * factor),
         wx.IMAGE_QUALITY_HIGH
     )
     return wx.Bitmap(img)
@@ -228,22 +229,22 @@ class TopFrame(wx.Frame):
 
         # Buttons
         # Power
-        self.quit_bnt = FnButton(self, label="Off", pos=(18 * self.scale, 202 * self.scale))
+        self.quit_bnt = FnButton(self, label="Off", pos=(int(18 * self.scale), int(202 * self.scale)))
         self.quit_bnt.SetToolTip("Quit")
         self.quit_bnt.Bind(wx.EVT_BUTTON, self.on_quit)
         # SD card
-        self.sd_bnt = FnButton(self, label="SD", pos=(bmp_size.width - (20 + 80) * self.scale, 202 * self.scale))
+        self.sd_bnt = FnButton(self, label="SD", pos=(int(bmp_size.width - (20 + 80) * self.scale), int(202 * self.scale)))
         self.sd_bnt.SetToolTip("Open SD Card folder")
         self.sd_bnt.Bind(wx.EVT_BUTTON, lambda e: self.open_sd_folder())
         # # Button A
-        self.a_bnt = FnButton(self, label="A", pos=(32 * self.scale, 16 * self.scale))
+        self.a_bnt = FnButton(self, label="A", pos=(int(32 * self.scale), int(16 * self.scale)))
         self.a_bnt.SetToolTip("Swap disks")
         self.a_bnt.Bind(wx.EVT_BUTTON, self.on_swap_btn)
         # # Button B
         # b_bnt = wx.Button(self, label="B", pos=(88, 12))
         # b_bnt.SetToolTip("TBD")
         # Button C
-        self.c_bnt = FnButton(self, label="Reset", pos=(bmp_size.width - (16 + 100) * self.scale, 16 * self.scale))
+        self.c_bnt = FnButton(self, label="Reset", pos=(int(bmp_size.width - (16 + 100) * self.scale), int(16 * self.scale)))
         self.c_bnt.SetToolTip("Restart FujiNet")
         self.c_bnt.Bind(wx.EVT_BUTTON, lambda e: self.fujinet.restart_process())
 
@@ -529,18 +530,16 @@ class TopFrame(wx.Frame):
         icons = wx.IconBundle(cfg.image_path("launcher.ico"))
         if not icons.IsEmpty():
             info.SetIcon(icons.GetIcon(64))
-        # info.SetName(version.NAME)
-        info.SetName("FujiNet-PC Launcher")
-        # info.SetVersion(version.VERSION)
-        info.SetVersion("0.1")
-        # info.SetDescription(version.DESC)
+        info.SetName(version.NAME)
+        info.SetVersion(version.VERSION)
+        info.SetDescription(version.DESCRIPTION)
         info.SetDescription("This launcher program controls FujiNet-PC and NetSIO hub.\n\n"
                             "FujiNet-PC is a port of #FujiNet firmware to Linux, macOS and Windows.\n\n"
                             "NetSIO hub is a complementary program to bridge a communication between\n"
                             "FujiNet or FujiNet-PC and Atari 8-bit computer emulator like Altirra.\n\n"
                             )
         info.SetCopyright('(C) 2022 apc')
-        info.SetWebSite('https://fujinet.online/')
+        info.SetWebSite('https://github.com/a8jan/fujinet-pc-launcher')
         # info.SetLicence(license)
         # info.AddDeveloper("Jan Krupa")
         wx.adv.AboutBox(info, self)
