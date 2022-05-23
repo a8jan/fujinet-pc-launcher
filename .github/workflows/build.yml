@@ -1,0 +1,38 @@
+name: Build FujiNet-PC Launcher
+
+on:
+#   push:
+#     branches: [ master ]
+#   pull_request:
+#     branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build-ubuntu-22:
+    runs-on: ubuntu-22.04
+    name: Ubuntu 22.04
+
+    steps:
+    - name: '🧰 Checkout Launcher'
+      uses: actions/checkout@v3
+
+    - name: '🧰 Checkout Emulator Bridge'
+      uses: actions/checkout@v3
+      with:
+        repository: FujiNetWIFI/fujinet-emulator-bridge
+        path: fujinet-emulator-bridge
+
+    - name: 'List directories'
+      run: |
+        ls -la .
+        ls -la ..
+
+  build-windows:
+    runs-on: windows-latest
+    name: Windows
+
+    steps:
+    - name: '🧰 Checkout'
+      uses: actions/checkout@v3
+      
+      
