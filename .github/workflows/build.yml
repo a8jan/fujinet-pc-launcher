@@ -8,26 +8,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-ubuntu-22:
-    runs-on: ubuntu-22.04
-    name: Ubuntu 22.04
+#   build-ubuntu-22:
+#     runs-on: ubuntu-22.04
+#     name: Ubuntu 22.04
 
-    steps:
-    - name: '🧰 Checkout Launcher'
-      uses: actions/checkout@v3
-      with:
-        path: fujinet-pc-launcher
+#     steps:
+#     - name: '🧰 Checkout Launcher'
+#       uses: actions/checkout@v3
+#       with:
+#         path: fujinet-pc-launcher
 
-    - name: '🧰 Checkout Emulator Bridge'
-      uses: actions/checkout@v3
-      with:
-        repository: FujiNetWIFI/fujinet-emulator-bridge
-        path: fujinet-emulator-bridge
+#     - name: '🧰 Checkout Emulator Bridge'
+#       uses: actions/checkout@v3
+#       with:
+#         repository: FujiNetWIFI/fujinet-emulator-bridge
+#         path: fujinet-emulator-bridge
 
-    - name: 'List directories'
-      run: |
-        ls -la .
-        ls -la ..
+#     - name: 'List directories'
+#       run: |
+#         ls -la .
+#         ls -la ..
 
   build-windows:
     runs-on: windows-latest
@@ -48,9 +48,12 @@ jobs:
       with:
         repository: FujiNetWIFI/fujinet-emulator-bridge
         path: fujinet-emulator-bridge
+
+    - name: 'Copy NetSIO hub module'
+      run: cp -av fujinet-emulator-bridge/netsiohub fujinet-pc-launcher
       
     - name: 'List directories'
       run: |
         ls -la .
-        ls -la ..
+        ls -la fujinet-pc-launcher
       
