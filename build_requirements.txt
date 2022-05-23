@@ -1,0 +1,3 @@
+wxpython
+requests
+pyinstaller

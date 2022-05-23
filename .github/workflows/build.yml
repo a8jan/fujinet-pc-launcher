@@ -56,3 +56,16 @@ jobs:
       run: |
         ls -la fujinet-pc-launcher
       
+    - name: Install Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+        architecture: 'x64'
+
+    - name: Install requirements
+      working-directory: fujinet-pc-launcher
+      run: pip install -r requirements_build.txt
+
+    - name: '🚧 Build FujiNet-PC Launcher'
+      working-directory: fujinet-pc-launcher
+      run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher\images\launcher-bg.ico --add-data launcher\images;images  launcher\__main__.py
