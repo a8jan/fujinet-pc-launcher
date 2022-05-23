@@ -33,10 +33,6 @@ jobs:
     runs-on: windows-latest
     name: Windows
 
-    defaults:
-      run:
-        shell: bash
-
     steps:
     - name: '🧰 Checkout Launcher'
       uses: actions/checkout@v3
@@ -50,11 +46,12 @@ jobs:
         path: fujinet-emulator-bridge
 
     - name: 'Copy NetSIO hub module'
+      shell: bash
       run: cp -av fujinet-emulator-bridge/fujinet-bridge/netsiohub fujinet-pc-launcher
       
     - name: 'List directories'
-      run: |
-        ls -la fujinet-pc-launcher
+      shell: bash
+      run: ls -la fujinet-pc-launcher
       
     - name: Install Python
       uses: actions/setup-python@v3
@@ -63,9 +60,11 @@ jobs:
         architecture: 'x64'
 
     - name: Install requirements
-      working-directory: fujinet-pc-launcher
-      run: pip install -r requirements_build.txt
+      working-directory: ./fujinet-pc-launcher
+      run: |
+        pwd
+        pip install -r requirements_build.txt
 
     - name: '🚧 Build FujiNet-PC Launcher'
-      working-directory: fujinet-pc-launcher
+      working-directory: ./fujinet-pc-launcher
       run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher\images\launcher-bg.ico --add-data launcher\images;images  launcher\__main__.py
