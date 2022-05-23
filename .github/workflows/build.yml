@@ -50,10 +50,9 @@ jobs:
         path: fujinet-emulator-bridge
 
     - name: 'Copy NetSIO hub module'
-      run: cp -av fujinet-emulator-bridge/netsiohub fujinet-pc-launcher
+      run: cp -av fujinet-emulator-bridge/fujinet-bridge/netsiohub fujinet-pc-launcher
       
     - name: 'List directories'
       run: |
-        ls -la .
         ls -la fujinet-pc-launcher
       
