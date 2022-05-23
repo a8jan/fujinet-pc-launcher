@@ -78,8 +78,14 @@ jobs:
       working-directory: fujinet-pc-launcher
       run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher\images\launcher-bg.ico --add-data launcher\images;images  launcher\__main__.py
 
-    - name: 'List dist'
-      run: ls -la fujinet-pc-launcher/dist
+    - name: Update dist with emulator files
+      run: cp -av fujinet-emulator-bridge/altirra-custom-device fujinet-pc-launcher/dist/emulator
+
+    - name: List dist
+      run: |
+        ls -la fujinet-pc-launcher/dist
+        ls -la fujinet-pc-launcher/dist/launcher
+        ls -la fujinet-pc-launcher/dist/emulator
       
     - name: Upload build artifact
       uses: actions/upload-artifact@v3
