@@ -81,3 +81,8 @@ jobs:
     - name: 'List dist'
       run: ls -la fujinet-pc-launcher/dist
       
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: fujinet-pc-launcher_windows-x64
+        path: fujinet-pc-launcher/dist/**
