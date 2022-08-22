@@ -6,6 +6,21 @@ on:
 #   pull_request:
 #     branches: [ master ]
   workflow_dispatch:
+    inputs:
+      releaseBuild:
+        description: 'Make a release build (adds tag)'
+        type: boolean
+        default: false
+      doRelease:
+        description: 'Create GitHub Release'
+        type: boolean
+        default: false
+      draftRelease:
+        description: 'Draft'
+        type: boolean
+        default: false
+      releaseVersion:
+        description: 'Release version, blank for auto'
 
 jobs:
 #   build-ubuntu-22:
@@ -29,12 +44,37 @@ jobs:
 #         ls -la .
 #         ls -la ..
 
-  build-windows:
-    runs-on: windows-latest
-    name: Windows
+  build:
+    name: Build
+    # needs: build-prep
+    strategy:
+      fail-fast: false
+      matrix:
+        name: [Windows]
+        target: [windows-x64]
+        runner: [windows-latest]
+        default-shell: [bash]
+        # include:
+        #   - name: Ubuntu 22.04
+        #     target: ubuntu-22.04-amd64
+        #     runner: ubuntu-22.04
+        #     default-shell: bash
+        #   - name: Ubuntu 18.04
+        #     target: ubuntu-18.04-amd64
+        #     runner: ubuntu-18.04
+        #     default-shell: bash
+        #   - name: macOS 10.15 Catalina
+        #     target: macos-10.15
+        #     runner: macos-10.15
+        #     default-shell: bash
+    # continue-on-error: true
+    runs-on: ${{ matrix.runner }}
     defaults:
       run:
-        shell: bash
+        shell: ${{ matrix.default-shell }}
+    # outputs:
+    #   release_version: ${{ steps.version.outputs.release }}
+    #   fujinet_version: ${{ steps.version.outputs.fujinet }}
 
     steps:
     - name: '🧰 Checkout Launcher'
@@ -54,8 +94,7 @@ jobs:
     - name: 'List directories'
       run: |
         pwd
-        ls -la .
-        ls -la fujinet-pc-launcher
+        ls -lR .
 
     - name: Install Python
       uses: actions/setup-python@v3
@@ -79,16 +118,55 @@ jobs:
       run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher\images\launcher-bg.ico --add-data launcher\images;images  launcher\__main__.py
 
     - name: Update dist with emulator files
-      run: cp -av fujinet-emulator-bridge/altirra-custom-device fujinet-pc-launcher/dist/emulator
+      run: | 
+        mkdir -p fujinet-pc-launcher/dist/emulator
+        cp -av fujinet-emulator-bridge/altirra-custom-device fujinet-pc-launcher/dist/emulator/Altirra
+
+    - name: Download latest FujiNet-PC release
+      if: ${{ github.event.inputs.releaseBuild == 'true' }}
+      run: python fujinet-pc-launcher/download_release.py fujinet-pc_*_${{ matrix.target }}.*
+
+    - name: '[Windows] Unzip FujiNet-PC into dist'
+      if: ${{ github.event.inputs.releaseBuild == 'true' && startsWith(matrix.target, 'windows') }}
+      run: 7z x -ofujinet-pc-launcher/dist fujinet-pc_*_${{ matrix.target }}.zip
 
     - name: List dist
-      run: |
-        ls -la fujinet-pc-launcher/dist
-        ls -la fujinet-pc-launcher/dist/launcher
-        ls -la fujinet-pc-launcher/dist/emulator
+      run: ls -lR fujinet-pc-launcher/dist
       
     - name: Upload build artifact
       uses: actions/upload-artifact@v3
       with:
-        name: fujinet-pc-launcher_windows-x64
+        name: fujinet-pc-launcher_${{ matrix.target }}
         path: fujinet-pc-launcher/dist/**
+
+  release:
+    if: ${{ github.event.inputs.releaseBuild == 'true' && github.event.inputs.doRelease == 'true'}}
+    # Create release
+    runs-on: ubuntu-latest
+    name: Release
+    needs: build
+
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: release
+
+    - name: Display structure of downloaded files
+      run: ls -lR release
+
+    - name: Zip release files
+      working-directory: release
+      run: |
+        for D in fujinet-pc-launcher_*windows*; do zip -r fujinet-pc-bundle.zip $D; done
+        
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+          # name: "FujiNet-PC Launcher ${{ needs.build.outputs.release_version }}"
+          name: "FujiNet-PC Launcher"
+          # tag_name: release-${{ needs.build.outputs.release_version }}
+          draft: ${{ github.event.inputs.draftRelease }}
+          files: |
+            release/fujinet-pc-bundle.tar.gz
+            release/fujinet-pc-bundle.zip
