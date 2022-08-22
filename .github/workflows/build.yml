@@ -159,7 +159,7 @@ jobs:
     - name: Zip release files
       working-directory: release
       run: |
-        for D in fujinet-pc-launcher_*windows*; do zip -r fujinet-pc-bundle.zip $D/*; done
+        for D in fujinet-pc-launcher_*windows*; do zip -r fujinet-pc-bundle_${D#fujinet-pc-launcher_}.zip $D/*; done
         
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -169,5 +169,5 @@ jobs:
           # tag_name: release-${{ needs.build.outputs.release_version }}
           draft: ${{ github.event.inputs.draftRelease }}
           files: |
-            release/fujinet-pc-bundle.tar.gz
-            release/fujinet-pc-bundle.zip
+            release/fujinet-pc-bundle_*.tar.gz
+            release/fujinet-pc-bundle_*.zip
