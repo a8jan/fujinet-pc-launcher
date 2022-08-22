@@ -126,9 +126,9 @@ jobs:
       working-directory: fujinet-pc-launcher
       run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher\images\launcher-bg.ico --add-data launcher\images;images  launcher\__main__.py
 
-    - name: 'Get build version'
+    - name: 'Get launcher version'
       id: version
-      working-directory: fujinet-pc-launcher/dist
+      working-directory: fujinet-pc-launcher
       run: |
         python -m launcher -V
         echo "::set-output name=fujinet::$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc launcher") print $2}')"
