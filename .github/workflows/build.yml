@@ -93,6 +93,10 @@ jobs:
         repository: FujiNetWIFI/fujinet-emulator-bridge
         path: fujinet-emulator-bridge
 
+    - name: Fetch tags
+      working-directory: fujinet-pc-launcher
+      run: git fetch --prune --unshallow --tags
+
     - name: 'Copy NetSIO hub module'
       run: cp -av fujinet-emulator-bridge/fujinet-bridge/netsiohub fujinet-pc-launcher
       
