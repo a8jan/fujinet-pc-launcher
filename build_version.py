@@ -5,7 +5,7 @@ import re
 import subprocess
 import sys
 
-VERSION_FILE = "include/version.h"
+VERSION_FILE = "launcher/version.py"
 
 class Version:
     def __init__(self):
@@ -220,11 +220,11 @@ def create_release_tag(ver, push):
 
 def update_version_file(ver):
     defs = [
-        ('FN_VERSION_MAJOR', ver.get_major()),
-        ('FN_VERSION_MINOR', ver.get_minor()),
-        ('FN_VERSION_BUILD', ver.get_build()),
-        ('FN_VERSION_DATE', ver.date),
-        ('FN_VERSION_FULL', ver.get_full())
+        ('VERSION_MAJOR', ver.get_major()),
+        ('VERSION_MINOR', ver.get_minor()),
+        ('VERSION_BUILD', ver.get_build()),
+        ('VERSION_DATE', ver.date),
+        ('VERSION_FULL', ver.get_full())
     ]
 
     lines = open(VERSION_FILE).readlines()
