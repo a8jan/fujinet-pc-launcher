@@ -135,6 +135,7 @@ jobs:
         echo "::set-output name=release::$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}' | sed 's/\(\.[1-9]\)\..*/\1/')"
 
     - name: Update dist with emulator files
+      if: ${{ github.event.inputs.releaseBuild == 'true' }}
       run: | 
         mkdir -p fujinet-pc-launcher/dist/emulator
         cp -av fujinet-emulator-bridge/altirra-custom-device fujinet-pc-launcher/dist/emulator/Altirra
