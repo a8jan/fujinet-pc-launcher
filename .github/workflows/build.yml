@@ -126,14 +126,10 @@ jobs:
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
       run: |
         python fujinet-pc-launcher/launcher/download_release.py fujinet-pc_*_${{ matrix.target }}.*
-        ls -l
 
     - name: '[Windows] Unzip FujiNet-PC into dist'
       if: ${{ github.event.inputs.releaseBuild == 'true' && startsWith(matrix.target, 'windows') }}
-      # run: 7z x -ofujinet-pc-launcher/dist fujinet-pc_*_${{ matrix.target }}.zip
-      run: |
-        7z x fujinet-pc_*_${{ matrix.target }}.zip
-        ls -l
+      run: 7z x -ofujinet-pc-launcher/dist fujinet-pc_*_${{ matrix.target }}.zip
 
     - name: List dist
       run: ls -lR fujinet-pc-launcher/dist

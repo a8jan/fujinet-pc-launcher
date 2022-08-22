@@ -32,7 +32,7 @@ def download_release(url: str, pattern: str):
         if fnmatch.fnmatch(name, pattern):
             file_url = asset.get('browser_download_url')
             if file_url:
-                # urllib.request.urlretrieve(file_url, name)
+                urllib.request.urlretrieve(file_url, name)
                 print(name)
     return 0
 
