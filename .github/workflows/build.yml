@@ -124,7 +124,7 @@ jobs:
 
     - name: Download latest FujiNet-PC release
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
-      run: python fujinet-pc-launcher/download_release.py fujinet-pc_*_${{ matrix.target }}.*
+      run: python fujinet-pc-launcher/launcher/download_release.py fujinet-pc_*_${{ matrix.target }}.*
 
     - name: '[Windows] Unzip FujiNet-PC into dist'
       if: ${{ github.event.inputs.releaseBuild == 'true' && startsWith(matrix.target, 'windows') }}
