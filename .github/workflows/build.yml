@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       releaseBuild:
-        description: 'Make a release build (adds tag)'
+        description: 'Prepare release bundle (adds tag)'
         type: boolean
         default: false
       doRelease:
@@ -159,7 +159,7 @@ jobs:
     - name: Zip release files
       working-directory: release
       run: |
-        for D in fujinet-pc-launcher_*windows*; do zip -r fujinet-pc-bundle.zip $D; done
+        for D in fujinet-pc-launcher_*windows*; do zip -r fujinet-pc-bundle.zip $D/*; done
         
     - name: Release
       uses: softprops/action-gh-release@v1
