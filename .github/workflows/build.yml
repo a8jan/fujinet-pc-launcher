@@ -131,8 +131,8 @@ jobs:
       working-directory: fujinet-pc-launcher
       run: |
         python -m launcher -V
-        echo "::set-output name=fujinet::$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc launcher") print $2}')"
-        echo "::set-output name=release::$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc launcher") print $2}' | sed 's/\(\.[1-9]\)\..*/\1/')"
+        echo "::set-output name=fujinet::$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}')"
+        echo "::set-output name=release::$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}' | sed 's/\(\.[1-9]\)\..*/\1/')"
 
     - name: Update dist with emulator files
       run: | 
