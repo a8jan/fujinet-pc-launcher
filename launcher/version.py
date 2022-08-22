@@ -1,14 +1,12 @@
 NAME = "FujiNet-PC Launcher"
-VERSION = "20220509"
 
-DESCRIPTION = """This launcher program controls FujiNet-PC and NetSIO hub.
+VERSION_MAJOR = "2208"
+VERSION_MINOR = "0"
+VERSION_BUILD = "6316ab62"
+VERSION_DATE = "2022-08-17 21:02:28"
+VERSION_FULL = "2208.0.6316ab62"
 
-FujiNet-PC is a port of #FujiNet firmware to Linux, macOS and Windows.
-
-NetSIO hub is a complementary program to bridge a communication between
-FujiNet or FujiNet-PC and Atari 8-bit computer emulator like Altirra.
-
-"""
+DESCRIPTION = "A launcher to control FujiNet-PC and NetSIO hub."
 
 COPYRIGHT = "(C) 2022 apc"
 WEBSITE = "https://github.com/a8jan/fujinet-pc-launcher"

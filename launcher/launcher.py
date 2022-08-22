@@ -531,7 +531,7 @@ class TopFrame(wx.Frame):
         if not icons.IsEmpty():
             info.SetIcon(icons.GetIcon(64))
         info.SetName(version.NAME)
-        info.SetVersion(version.VERSION)
+        info.SetVersion(version.VERSION_MAJOR +"."+ version.VERSION_MINOR, version.VERSION_FULL)
         info.SetDescription(version.DESCRIPTION)
         info.SetCopyright(version.COPYRIGHT)
         info.SetWebSite(version.WEBSITE)
