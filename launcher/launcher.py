@@ -568,16 +568,33 @@ class MyApp(wx.App):
         return True
 
 
+def print_version():
+    print ("FujiNet-PC Launcher {}".format(version.VERSION_FULL))
+    print(version.VERSION_DATE)
+
+
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == '-V':
+        print_version()
+        return 0
+
+    # some debug details
+    # python runtime info
     print("__file__:", __file__)
     print("sys.executable:", sys.executable)
     print("sys.version:", sys.version)
     print("sys.path:")
     print("\n".join(sys.path))
     print("sys.argv", sys.argv)
+    # directory info
+    cfg.print_dir_info()
 
     # parse command line
     cfg.parse_args()
+    if cfg.print_version:
+        print_version()
+        return 0
+
     sys.argv[0]=cfg.launcher_label or "FujiNet-PC"  # WTF trick to set WM_CLASS for gnome-shell
 
     # run app

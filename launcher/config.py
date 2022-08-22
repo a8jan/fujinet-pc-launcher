@@ -27,8 +27,13 @@ def to_port(s) -> int:
 
 class Config:
     def __init__(self) -> None:
+        # print version and exit
+        self.print_version: bool = False
+
         # GUI scale
         self.gui_scale : float = 0.6
+        # Window will stay on top of other windows
+        self.stay_on_top: bool = False
 
         # # parsed command line arguments
         # self.args : argparse.Namespace = None
@@ -41,8 +46,6 @@ class Config:
         self.launcher_dir : AnyStr = os.path.dirname(sys.argv[0])
         # runtime directory (provided by pyinstaller or appimage, can be read-only)
         self.launcher_rundir : AnyStr = os.path.dirname(__file__)
-        print("launcher dir:", self.launcher_dir)
-        print("launcher rundir:", self.launcher_rundir)
 
         # fujinet-pc working directory (with data, web, fonts, etc.)
         self.fujinet_rundir : AnyStr = os.path.join(
@@ -59,15 +62,11 @@ class Config:
             os.path.dirname(self.launcher_dir),
             "fujinet-pc"
         )
-        print("fujinet dir:", self.fujinet_dir)
-        print("fujinet rundir:", self.fujinet_rundir)
 
         # netsiohub working directory
         self.netsio_rundir : AnyStr = os.path.dirname(self.launcher_rundir)
         # module name
         self.netsio_module : str = "netsiohub"
-        print("netsio rundir:", self.netsio_rundir)
-        print("netsio module:", self.netsio_module)
 
         # Launcher label
         self.launcher_label : str = ""
@@ -86,6 +85,14 @@ class Config:
 
     def image_path(self, fname):
         return os.path.join(self.launcher_dir, "images", fname)
+
+    def print_dir_info(self):
+        print("launcher dir:", self.launcher_dir)
+        print("launcher rundir:", self.launcher_rundir)
+        print("fujinet dir:", self.fujinet_dir)
+        print("fujinet rundir:", self.fujinet_rundir)
+        print("netsio rundir:", self.netsio_rundir)
+        print("netsio module:", self.netsio_module)
 
     @property
     def fujinet_base_url(self) -> str:
@@ -137,6 +144,7 @@ class Config:
         arg_parser.add_argument('-i', '--instance', type=int, help="FujiNet instance ID")
         arg_parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Log emulation device commands')
         arg_parser.add_argument('-d', '--debug', dest='debug', action='store_true', help='Print debug output')
+        arg_parser.add_argument('-V', '--version', dest='print_version', action='store_true', help='Print program version and exit')
         args = arg_parser.parse_args()
 
         # alter configuration
@@ -194,6 +202,8 @@ class Config:
             self.atdev_port = to_port(args.port)
             print("AtDev port:", self.atdev_port)
 
+        if args.print_version is not None:
+            self.print_version = args.print_version
 
 
 # global configuration
