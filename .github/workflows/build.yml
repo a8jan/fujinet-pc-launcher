@@ -82,6 +82,9 @@ jobs:
     - name: Get launcher version
       id: version
       working-directory: fujinet-pc-launcher/launcher
+      # prevent __pycache__ to be created
+      env:
+        PYTHONDONTWRITEBYTECODE: 1
       run: |
         python -c 'import version; print(version.VERSION_FULL)'
         echo "::set-output name=launcher::$(python -c 'import version; print(version.VERSION_FULL)')"
@@ -238,7 +241,7 @@ jobs:
     - name: Zip release files
       working-directory: release
       run: |
-        for D in fujinet-pc-scripts_*_all; do zip -r ${D}.zip $D; tar xzvf ${D}.tar.gz $D; done
+        for D in fujinet-pc-scripts_*_all; do zip -r ${D}.zip $D; tar -czvf ${D}.tar.gz $D; done
         for D in fujinet-pc-launcher_*windows*; do (cd $D; zip -r ../fujinet-pc-bundle_${D#fujinet-pc-launcher_}.zip *); done
         
     - name: Release
