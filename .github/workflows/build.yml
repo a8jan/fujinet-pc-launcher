@@ -49,7 +49,67 @@ jobs:
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
       run: python build_version.py release:push ${{ github.event.inputs.releaseVersion }}
 
+  scripts:
+    name: 'Bundle scripts (no binaries)'
+    needs: build-prep
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.releaseBuild == 'true' }}
+
+    outputs:
+      release_version: ${{ steps.version.outputs.release }}
+      launcher_version: ${{ steps.version.outputs.launcher }}
+
+    steps:
+    - name: '🧰 Checkout Launcher'
+      uses: actions/checkout@v3
+      with:
+        path: fujinet-pc-launcher
+
+    - name: '🧰 Checkout Emulator Bridge'
+      uses: actions/checkout@v3
+      with:
+        repository: FujiNetWIFI/fujinet-emulator-bridge
+        path: fujinet-emulator-bridge
+
+    - name: Fetch tags
+      working-directory: fujinet-pc-launcher
+      run: git fetch --prune --unshallow --tags
+
+    - name: Update launcher version
+      working-directory: fujinet-pc-launcher
+      run: python build_version.py
+
+    - name: Get launcher version
+      id: version
+      working-directory: fujinet-pc-launcher
+      run: |
+        python -m launcher -V
+        echo "::set-output name=fujinet::$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}')"
+        echo "::set-output name=release::$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}' | sed 's/\(\.[1-9]\)\..*/\1/')"
+
+    - name: Populate dist directory
+      run: |
+        mkdir dist
+        mkdir dist/emulator
+        cp -av fujinet-pc-launcher/launcher dist
+        cp -av fujinet-emulator-bridge/fujinet-bridge/netsiohub dist
+        cp -av fujinet-emulator-bridge/altirra-custom-device dist/emulator/Altirra
+        mkdir dist/fujinet-pc
+        echo 'This directory is for FujiNet-PC executable.' > dist/fujinet-pc/README.txt
+        echo 'Visit https://github.com/FujiNetWIFI/fujinet-pc/releases to download binaries for your OS.' >> dist/fujinet-pc/README.txt
+        echo 'Place extracted files here.' >> dist/fujinet-pc/README.txt
+
+    - name: List dist
+      run: ls -lR dist
+      
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: fujinet-pc-scripts_${{ steps.version.outputs.release }}_all
+        path: dist/**
+
   build:
+    # Build binary bundles
     name: Build
     needs: build-prep
     strategy:
@@ -77,9 +137,6 @@ jobs:
     defaults:
       run:
         shell: ${{ matrix.default-shell }}
-    outputs:
-      release_version: ${{ steps.version.outputs.release }}
-      launcher_version: ${{ steps.version.outputs.launcher }}
 
     steps:
     - name: '🧰 Checkout Launcher'
@@ -121,7 +178,7 @@ jobs:
       working-directory: fujinet-pc-launcher
       run: pip install -r requirements_build.txt
 
-    - name: Update version file
+    - name: Update launcher version
       working-directory: fujinet-pc-launcher
       run: python build_version.py
 
@@ -167,7 +224,7 @@ jobs:
     # Create release
     runs-on: ubuntu-latest
     name: Release
-    needs: build
+    needs: [scripts, build]
 
     steps:
     - name: Download build artifacts
@@ -178,17 +235,19 @@ jobs:
     - name: Display structure of downloaded files
       run: ls -lR release
 
-    - name: Zip release bundle files
+    - name: Zip release files
       working-directory: release
       run: |
+        for D in fujinet-pc-scripts_*_all; do zip -r ${D}.zip $D; tar xzvf ${D}.tar.gz $D; done
         for D in fujinet-pc-launcher_*windows*; do (cd $D; zip -r ../fujinet-pc-bundle_${D#fujinet-pc-launcher_}.zip *); done
         
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
-          name: "FujiNet-PC Launcher ${{ needs.build.outputs.release_version }}"
-          tag_name: release-${{ needs.build.outputs.release_version }}
+          name: "FujiNet-PC Launcher ${{ needs.scripts.outputs.release_version }}"
+          tag_name: release-${{ needs.scripts.outputs.release_version }}
           draft: ${{ github.event.inputs.draftRelease }}
           files: |
-            release/fujinet-pc-bundle_*.tar.gz
+            release/fujinet-pc-scripts_*_all.tar.gz
+            release/fujinet-pc-scripts_*_all.zip
             release/fujinet-pc-bundle_*.zip
