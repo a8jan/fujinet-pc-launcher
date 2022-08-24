@@ -108,7 +108,7 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v3
       with:
-        name: fujinet-pc-scripts_${{ steps.version.outputs.release }}_all
+        name: fujinet-pc-scripts_${{ steps.version.outputs.release }}
         path: dist/**
 
   build:
@@ -241,7 +241,7 @@ jobs:
     - name: Zip release files
       working-directory: release
       run: |
-        for D in fujinet-pc-scripts_*_all; do zip -r ${D}.zip $D; tar -czvf ${D}.tar.gz $D; done
+        for D in fujinet-pc-scripts_*; do zip -r ${D}.zip $D; tar -czvf ${D}.tar.gz $D; done
         for D in fujinet-pc-launcher_*windows*; do (cd $D; zip -r ../fujinet-pc-bundle_${D#fujinet-pc-launcher_}.zip *); done
         
     - name: Release
@@ -251,6 +251,6 @@ jobs:
           tag_name: release-${{ needs.scripts.outputs.release_version }}
           draft: ${{ github.event.inputs.draftRelease }}
           files: |
-            release/fujinet-pc-scripts_*_all.tar.gz
-            release/fujinet-pc-scripts_*_all.zip
+            release/fujinet-pc-scripts_*.tar.gz
+            release/fujinet-pc-scripts_*.zip
             release/fujinet-pc-bundle_*.zip
