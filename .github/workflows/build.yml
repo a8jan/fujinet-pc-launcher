@@ -113,7 +113,6 @@ jobs:
 
   build:
     # Build binary bundles
-    name: Build
     needs: build-prep
     strategy:
       fail-fast: false
@@ -136,6 +135,7 @@ jobs:
         #     runner: macos-10.15
         #     default-shell: bash
     # continue-on-error: true
+    name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
     defaults:
       run:
