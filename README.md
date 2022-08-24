@@ -26,6 +26,12 @@ Note: Wine can be used to run Altirra on macOS and Linux.
   * parameters to control SD folder, config file, network ports
   * allows multiple Altirra-FujiNet instances to run simultaneously
 
-## Installation
+## Download
 
-Check the instructions [here](Install.md) to get it running (currently only Windows, rest will follow).
+**FujiNet-PC bundle** is available in [Releases](https://github.com/a8jan/fujinet-pc-launcher/releases) section. The bundle contains: FujiNet-PC binaries, Launcher GUI, NetSIO hub and NetSIO custom device for Altirra. Python with necessary libraries is part of the bundle. All in one bundle is currently available only for Windows.
+
+Check for setup instructions [here](Install.md).
+
+An alternative to all in one bundle is a variant which includes **scripts** only, also available in [Releases](https://github.com/a8jan/fujinet-pc-launcher/releases) section. The scripts package contains: Launcher GUI and NetSIO hub Python modules and NetSIO custom device for Altirra. It does not contain any binaries. To run scripts Python 3 with necessary libraries must be installed on the system and FujiNet-PC binaries ([downloaded](https://github.com/FujiNetWIFI/fujinet-pc/releases/latest) or [built](https://github.com/FujiNetWIFI/fujinet-pc#build-instructions)) have to be placed into `fujinet-pc` directory.
+
+Check how to run FujiNet-PC Launcher or NetSIO hub as Python scripts [here](ScriptsUsage.md).
