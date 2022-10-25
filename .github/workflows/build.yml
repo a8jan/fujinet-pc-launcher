@@ -87,8 +87,8 @@ jobs:
         PYTHONDONTWRITEBYTECODE: 1
       run: |
         python -c 'import version; print(version.VERSION_FULL)'
-        echo "::set-output name=launcher::$(python -c 'import version; print(version.VERSION_FULL)')"
-        echo "::set-output name=release::$(python -c 'import version; print(version.VERSION_FULL)' | sed 's/\(\.[1-9]\)\..*/\1/')"
+        echo "launcher=$(python -c 'import version; print(version.VERSION_FULL)')" >> $GITHUB_OUTPUT
+        echo "release=$(python -c 'import version; print(version.VERSION_FULL)' | sed 's/\(\.[1-9]\)\..*/\1/')" >> $GITHUB_OUTPUT
 
     - name: Populate dist directory
       run: |
@@ -195,8 +195,8 @@ jobs:
       working-directory: fujinet-pc-launcher
       run: |
         python -m launcher -V
-        echo "::set-output name=fujinet::$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}')"
-        echo "::set-output name=release::$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}' | sed 's/\(\.[1-9]\)\..*/\1/')"
+        echo "fujinet=$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}')" >> $GITHUB_OUTPUT
+        echo "release=$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}' | sed 's/\(\.[1-9]\)\..*/\1/')" >> $GITHUB_OUTPUT
 
     - name: Update dist with emulator files
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
