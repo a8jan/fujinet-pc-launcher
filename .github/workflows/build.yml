@@ -218,9 +218,14 @@ jobs:
       run: |
         python fujinet-pc-launcher/launcher/download_release.py "fujinet-pc_*_macos-*.*"
 
-    - name: 'Unzip FujiNet-PC into dist'
-      if: ${{ github.event.inputs.releaseBuild == 'true' }}
+    - name: '[Windows] Unzip FujiNet-PC into dist'
+      if: ${{ startsWith(matrix.target, 'windows') && github.event.inputs.releaseBuild == 'true' }}
       run: 7z x -ofujinet-pc-launcher/dist fujinet-pc_*_${{ matrix.target }}.zip
+
+    # TODO: remove, temporary workaround for missing fujinet-pc release for macos-11
+    - name: '[macOS] Unzip FujiNet-PC into dist'
+      if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
+      run: 7z x -ofujinet-pc-launcher/dist fujinet-pc_*_macos-*.zip
 
     - name: List dist
       shell: bash
