@@ -94,8 +94,9 @@ class LedIndicator(wx.Window):
 
 class FnButton(wx.Button):
     def __init__(self, *args, **kwargs):
-        if 'style' not in kwargs:
-            kwargs['style'] = wx.NO_BORDER
+        if wx.Platform != '__WXMAC__':
+            if 'style' not in kwargs:
+                kwargs['style'] = wx.NO_BORDER
         wx.Button.__init__(self, *args, **kwargs)
         if 'size' not in kwargs:
             # w1, h = self.GetTextExtent("MM")
@@ -112,11 +113,12 @@ class FnButton(wx.Button):
         self.bg_color = (56, 53, 53, 255)
         self.bg_color_hover = '#000'
         self.bg_color_active = '#a67301'
-        self.SetBackgroundColour(self.bg_color)
-        self.SetForegroundColour((250, 244, 5, 255))
-        self.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
-        self.Bind(wx.EVT_LEAVE_WINDOW, self.on_leave)
-        # self.Bind(wx.EVT_LEFT_DOWN, self.on_left_down)
+        if wx.Platform != '__WXMAC__':
+            self.SetBackgroundColour(self.bg_color)
+            self.SetForegroundColour((250, 244, 5, 255))
+            self.Bind(wx.EVT_ENTER_WINDOW, self.on_enter)
+            self.Bind(wx.EVT_LEAVE_WINDOW, self.on_leave)
+            # self.Bind(wx.EVT_LEFT_DOWN, self.on_left_down)
 
     def on_enter(self, evt):
         self.SetBackgroundColour(self.bg_color_hover)
