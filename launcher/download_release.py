@@ -8,6 +8,7 @@ import sys
 import os
 import json
 import urllib.request
+import urllib.error
 import fnmatch
 
 
@@ -19,11 +20,18 @@ def usage():
 
 
 def download_release(url: str, pattern: str):
-    releases = urllib.request.urlopen(
-        urllib.request.Request(url,
-        headers={'Accept': 'application/vnd.github.v3+json'},
-    )).read()
-    _json = json.loads(releases)
+    try:
+        releases = urllib.request.urlopen(
+            urllib.request.Request(url,
+            headers={'Accept': 'application/vnd.github.v3+json'},
+        )).read()
+        _json = json.loads(releases)
+    except urllib.error.HTTPError as e:
+        _json = None
+        print("Download error!")
+        print("URL:", e.geturl())
+        print("Response code:", e.getcode())
+        print(e.info())
     if not isinstance(_json, dict):
         return 1
     assets = _json.get('assets',[])
