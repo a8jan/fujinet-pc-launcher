@@ -120,7 +120,6 @@ jobs:
         name: [Windows]
         target: [windows-x64]
         runner: [windows-latest]
-        default-shell: [bash]
         include:
         #   - name: Ubuntu 22.04
         #     target: ubuntu-22.04-amd64
@@ -133,13 +132,9 @@ jobs:
           - name: macOS 11 Big Sur
             target: macos-11
             runner: macos-11
-            default-shell: bash
     # continue-on-error: true
     name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
-    defaults:
-      run:
-        shell: ${{ matrix.default-shell }}
 
     steps:
     - name: '🧰 Checkout Launcher'
@@ -158,9 +153,11 @@ jobs:
       run: git fetch --prune --unshallow --tags
 
     - name: 'Copy NetSIO hub module'
+      shell: bash
       run: cp -av fujinet-emulator-bridge/fujinet-bridge/netsiohub fujinet-pc-launcher
       
     - name: 'List directories'
+      shell: bash
       run: |
         pwd
         ls -lR .
@@ -177,7 +174,6 @@ jobs:
         pip --version
 
     - name: Install requirements
-      shell: cmd
       working-directory: fujinet-pc-launcher
       run: pip install -r requirements_build.txt
 
@@ -186,13 +182,13 @@ jobs:
       run: python build_version.py
 
     - name: '🚧 Build FujiNet-PC Launcher'
-      shell: cmd
       working-directory: fujinet-pc-launcher
       run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher\images\launcher-bg.ico --add-data launcher\images;images  launcher\__main__.py
 
     - name: 'Get launcher version'
       id: version
       working-directory: fujinet-pc-launcher
+      shell: bash
       run: |
         python -m launcher -V
         echo "fujinet=$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}')" >> $GITHUB_OUTPUT
@@ -200,6 +196,7 @@ jobs:
 
     - name: Update dist with emulator files
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
+      shell: bash
       run: | 
         mkdir -p fujinet-pc-launcher/dist/emulator
         cp -av fujinet-emulator-bridge/altirra-custom-device fujinet-pc-launcher/dist/emulator/Altirra
@@ -214,6 +211,7 @@ jobs:
       run: 7z x -ofujinet-pc-launcher/dist fujinet-pc_*_${{ matrix.target }}.zip
 
     - name: List dist
+      shell: bash
       run: ls -lR fujinet-pc-launcher/dist
       
     - name: Upload build artifact
@@ -243,6 +241,7 @@ jobs:
       run: |
         for D in fujinet-pc-scripts_*; do zip -r ${D}.zip $D; tar -czvf ${D}.tar.gz $D; done
         for D in fujinet-pc-launcher_*windows*; do (cd $D; zip -r ../fujinet-pc-bundle_${D#fujinet-pc-launcher_}.zip *); done
+        for D in fujinet-pc-launcher_*macos*; do (cd $D; zip -r ../fujinet-pc-bundle_${D#fujinet-pc-launcher_}.zip *); done
         
     - name: Release
       uses: softprops/action-gh-release@v1
