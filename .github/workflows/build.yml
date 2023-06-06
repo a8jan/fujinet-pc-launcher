@@ -121,7 +121,7 @@ jobs:
         target: [windows-x64]
         runner: [windows-latest]
         default-shell: [bash]
-        # include:
+        include:
         #   - name: Ubuntu 22.04
         #     target: ubuntu-22.04-amd64
         #     runner: ubuntu-22.04
@@ -130,10 +130,10 @@ jobs:
         #     target: ubuntu-18.04-amd64
         #     runner: ubuntu-18.04
         #     default-shell: bash
-        #   - name: macOS 10.15 Catalina
-        #     target: macos-10.15
-        #     runner: macos-10.15
-        #     default-shell: bash
+          - name: macOS 10.15 Catalina
+            target: macos-10.15
+            runner: macos-10.15
+            default-shell: bash
     # continue-on-error: true
     name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
@@ -168,7 +168,7 @@ jobs:
     - name: Install Python
       uses: actions/setup-python@v3
       with:
-        python-version: '3.9'
+        python-version: '3.10'
         architecture: 'x64'
 
     - name: List versions
@@ -209,8 +209,8 @@ jobs:
       run: |
         python fujinet-pc-launcher/launcher/download_release.py fujinet-pc_*_${{ matrix.target }}.*
 
-    - name: '[Windows] Unzip FujiNet-PC into dist'
-      if: ${{ github.event.inputs.releaseBuild == 'true' && startsWith(matrix.target, 'windows') }}
+    - name: 'Unzip FujiNet-PC into dist'
+      if: ${{ github.event.inputs.releaseBuild == 'true' }}
       run: 7z x -ofujinet-pc-launcher/dist fujinet-pc_*_${{ matrix.target }}.zip
 
     - name: List dist
