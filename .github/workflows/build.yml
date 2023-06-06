@@ -207,10 +207,16 @@ jobs:
         mkdir -p fujinet-pc-launcher/dist/emulator
         cp -av fujinet-emulator-bridge/altirra-custom-device fujinet-pc-launcher/dist/emulator/Altirra
 
-    - name: Download latest FujiNet-PC release
-      if: ${{ github.event.inputs.releaseBuild == 'true' }}
+    - name: '[Windows] Download latest FujiNet-PC release'
+      if: ${{ startsWith(matrix.target, 'windows') && github.event.inputs.releaseBuild == 'true' }}
       run: |
         python fujinet-pc-launcher/launcher/download_release.py fujinet-pc_*_${{ matrix.target }}.*
+
+    # TODO: remove, temporary workaround for missing fujinet-pc release for macos-11
+    - name: '[macOS] Download latest FujiNet-PC release'
+      if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
+      run: |
+        python fujinet-pc-launcher/launcher/download_release.py fujinet-pc_*_macos-*.*
 
     - name: 'Unzip FujiNet-PC into dist'
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
