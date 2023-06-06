@@ -231,6 +231,10 @@ jobs:
       if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
       run: tar -xzf fujinet-pc_*_macos-*.tar.gz -C fujinet-pc-launcher/dist
 
+    - name: '[macOS] Remove dist/launcher (keep launcher.app only)'
+      if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
+      run: rm -rf fujinet-pc-launcher/dist/launcher
+
     - name: List dist
       shell: bash
       run: ls -lR fujinet-pc-launcher/dist
