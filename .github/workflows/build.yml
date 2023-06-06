@@ -130,9 +130,9 @@ jobs:
         #     target: ubuntu-18.04-amd64
         #     runner: ubuntu-18.04
         #     default-shell: bash
-          - name: macOS 10.15 Catalina
-            target: macos-10.15
-            runner: macos-10.15
+          - name: macOS 11 Big Sur
+            target: macos-11
+            runner: macos-11
             default-shell: bash
     # continue-on-error: true
     name: Build ${{ matrix.name }}
