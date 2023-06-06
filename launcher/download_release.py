@@ -20,10 +20,14 @@ def usage():
 
 
 def download_release(url: str, pattern: str):
+    token = os.environ.get('GITHUB_TOKEN', None)
+    headers = {'Accept': 'application/vnd.github.v3+json'}
+    if token:
+        headers['Authorization'] = 'token ' + token
     try:
         releases = urllib.request.urlopen(
             urllib.request.Request(url,
-            headers={'Accept': 'application/vnd.github.v3+json'},
+            headers=headers,
         )).read()
         _json = json.loads(releases)
     except urllib.error.HTTPError as e:

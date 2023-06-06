@@ -129,7 +129,7 @@ jobs:
         #     target: ubuntu-18.04-amd64
         #     runner: ubuntu-18.04
         #     default-shell: bash
-          - name: macOS 11 Big Sur
+          - name: macOS 11
             target: macos-11
             runner: macos-11
     # continue-on-error: true
@@ -209,12 +209,16 @@ jobs:
 
     - name: '[Windows] Download latest FujiNet-PC release'
       if: ${{ startsWith(matrix.target, 'windows') && github.event.inputs.releaseBuild == 'true' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         python fujinet-pc-launcher/launcher/download_release.py "fujinet-pc_*_${{ matrix.target }}.*"
 
     # TODO: remove, temporary workaround for missing fujinet-pc release for macos-11
     - name: '[macOS] Download latest FujiNet-PC release'
       if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         python fujinet-pc-launcher/launcher/download_release.py "fujinet-pc_*_macos-*.*"
 
