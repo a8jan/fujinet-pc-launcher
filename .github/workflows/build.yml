@@ -197,8 +197,8 @@ jobs:
       shell: bash
       run: |
         python -m launcher -V
-        echo "fujinet=$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}')" >> $GITHUB_OUTPUT
-        echo "release=$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}' | sed 's/\(\.[1-9]\)\..*/\1/')" >> $GITHUB_OUTPUT
+        echo "launcher=$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}')" >> $GITHUB_OUTPUT
+        echo "release=$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}' | sed 's/\(\.[1-9][0-9]*\)\..*/\1/')" >> $GITHUB_OUTPUT
 
     - name: Update dist with emulator files
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
