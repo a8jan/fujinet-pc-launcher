@@ -227,9 +227,9 @@ jobs:
       run: 7z x -ofujinet-pc-launcher/dist fujinet-pc_*_${{ matrix.target }}.zip
 
     # TODO use matrix.target instead of macos-*
-    - name: '[macOS] Uncompress FujiNet-PC into dist'
+    - name: '[macOS] Uncompress FujiNet-PC into launcher.app'
       if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
-      run: tar -xzf fujinet-pc_*_macos-*.tar.gz -C fujinet-pc-launcher/dist
+      run: tar -xzf fujinet-pc_*_macos-*.tar.gz -C fujinet-pc-launcher/launcher.app/Contents
 
     - name: '[macOS] Remove dist/launcher (keep launcher.app only)'
       if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
@@ -239,11 +239,19 @@ jobs:
       shell: bash
       run: ls -lR fujinet-pc-launcher/dist
       
+    # To preserve executable bit on files (GH artifacts are automatically zipped and executable bit is lost)
+    - name: 'Tar dist files'
+      shell: bash
+      working-directory: fujinet-pc-launcher
+      run: |
+        mv dist fujinet-pc-bundle
+        tar -czf fujinet-pc-bundle_${{ steps.version.outputs.release }}_${{ matrix.target }}.tgz fujinet-pc-bundle
+
     - name: Upload build artifact
       uses: actions/upload-artifact@v3
       with:
-        name: fujinet-pc-launcher_${{ steps.version.outputs.release }}_${{ matrix.target }}
-        path: fujinet-pc-launcher/dist/**
+        name: fujinet-pc-bundle_${{ steps.version.outputs.release }}_${{ matrix.target }}
+        path: fujinet-pc-launcher/fujinet-pc-bundle_${{ steps.version.outputs.release }}_${{ matrix.target }}.tgz
 
   release:
     if: ${{ github.event.inputs.releaseBuild == 'true' && github.event.inputs.doRelease == 'true'}}
@@ -265,9 +273,8 @@ jobs:
       working-directory: release
       run: |
         for D in fujinet-pc-scripts_*; do zip -r ${D}.zip $D; tar -czvf ${D}.tar.gz $D; done
-        for D in fujinet-pc-launcher_*windows*; do (cd $D; zip -r ../fujinet-pc-bundle_${D#fujinet-pc-launcher_}.zip *); done
-        for D in fujinet-pc-launcher_*macos*; do (cd $D; zip -r ../fujinet-pc-bundle_${D#fujinet-pc-launcher_}.zip *); done
-        
+        for D in fujinet-pc-bundle_*windows*; do (cd $D; F=(fujinet-pc-bundle_*.tgz); tar -xzvf $F; zip -r ${F%.*}.zip fujinet-pc-bundle); done
+
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
@@ -278,3 +285,4 @@ jobs:
             release/fujinet-pc-scripts_*.tar.gz
             release/fujinet-pc-scripts_*.zip
             release/fujinet-pc-bundle_*.zip
+            release/fujinet-pc-bundle_*.tgz
