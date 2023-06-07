@@ -242,10 +242,9 @@ jobs:
     # To preserve executable bit on files (GH artifacts are automatically zipped and executable bit is lost)
     - name: 'Tar dist files'
       shell: bash
-      working-directory: fujinet-pc-launcher
+      working-directory: fujinet-pc-launcher/dist
       run: |
-        mv dist fujinet-pc-bundle
-        tar -czf fujinet-pc-bundle_${{ steps.version.outputs.release }}_${{ matrix.target }}.tgz fujinet-pc-bundle
+        tar -czf ../fujinet-pc-bundle_${{ steps.version.outputs.release }}_${{ matrix.target }}.tgz *
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v3
@@ -269,12 +268,26 @@ jobs:
     - name: Display structure of downloaded files
       run: ls -lR release
 
-    - name: Zip release files
+    - name: 'Zip release files (scripts and windows)'
       working-directory: release
       run: |
-        for D in fujinet-pc-scripts_*; do zip -r ${D}.zip $D; tar -czvf ${D}.tar.gz $D; done
-        for D in fujinet-pc-bundle_*windows*; do (cd $D; F=(fujinet-pc-bundle_*.tgz); tar -xzvf $F; zip -r ${F%.*}.zip fujinet-pc-bundle); done
-        rm -f fujinet-pc-bundle_*windows*/fujinet-pc-bundle_*.tgz
+        for D in fujinet-pc-scripts_*
+        do
+          zip -r ${D}.zip $D
+          tar -czvf ${D}.tar.gz $D
+        done
+        for D in fujinet-pc-bundle_*windows*
+        do
+          (
+            cd $D
+            F=(fujinet-pc-bundle_*.tgz)
+            mkdir dist
+            tar -xzvf $F -C dist
+            rm -f $F
+            cd dist
+            zip -r ../${F%.*}.zip *
+          )
+        done
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -285,5 +298,5 @@ jobs:
           files: |
             release/fujinet-pc-scripts_*.tar.gz
             release/fujinet-pc-scripts_*.zip
-            release/fujinet-pc-bundle_*/fujinet-pc-bundle_*.zip
             release/fujinet-pc-bundle_*/fujinet-pc-bundle_*.tgz
+            release/fujinet-pc-bundle_*/fujinet-pc-bundle_*.zip
