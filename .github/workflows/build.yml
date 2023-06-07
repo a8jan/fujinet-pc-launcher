@@ -274,6 +274,7 @@ jobs:
       run: |
         for D in fujinet-pc-scripts_*; do zip -r ${D}.zip $D; tar -czvf ${D}.tar.gz $D; done
         for D in fujinet-pc-bundle_*windows*; do (cd $D; F=(fujinet-pc-bundle_*.tgz); tar -xzvf $F; zip -r ${F%.*}.zip fujinet-pc-bundle); done
+        rm -f fujinet-pc-bundle_*windows*/fujinet-pc-bundle_*.tgz
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -284,5 +285,5 @@ jobs:
           files: |
             release/fujinet-pc-scripts_*.tar.gz
             release/fujinet-pc-scripts_*.zip
-            release/fujinet-pc-bundle_*.zip
-            release/fujinet-pc-bundle_*.tgz
+            release/fujinet-pc-bundle_*/fujinet-pc-bundle_*.zip
+            release/fujinet-pc-bundle_*/fujinet-pc-bundle_*.tgz
