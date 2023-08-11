@@ -5,6 +5,7 @@ fujinet-pc-windows*
 fujinet-pc-macos*
 FujiNet-*
 netsiohub
+netsiohub_dev
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
