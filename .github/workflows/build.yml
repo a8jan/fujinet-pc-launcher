@@ -184,12 +184,12 @@ jobs:
     - name: '🚧 [Windows] Build FujiNet-PC Launcher'
       if: ${{ startsWith(matrix.target, 'windows') }}
       working-directory: fujinet-pc-launcher
-      run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher\images\launcher-bg.ico --add-data "launcher\images;images"  launcher\__main__.py
+      run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --contents-directory . --name launcher --icon launcher\images\launcher-bg.ico --add-data "launcher\images;images"  launcher\__main__.py
 
     - name: '🚧 [macOS] Build FujiNet-PC Launcher'
       if: ${{ startsWith(matrix.target, 'macos') }}
       working-directory: fujinet-pc-launcher
-      run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher/images/launcher-bg.ico --add-data launcher/images:images  launcher/__main__.py
+      run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --contents-directory . --name launcher --icon launcher/images/launcher-bg.ico --add-data launcher/images:images  launcher/__main__.py
 
     - name: 'Get launcher version'
       id: version
@@ -214,22 +214,13 @@ jobs:
       run: |
         python fujinet-pc-launcher/launcher/download_release.py "fujinet-pc_*_${{ matrix.target }}.*"
 
-    ## TODO: remove, temporary workaround for missing fujinet-pc release for macos-11
-    #- name: '[macOS] Download latest FujiNet-PC release'
-    #  if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
-    #  env:
-    #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    #  run: |
-    #    python fujinet-pc-launcher/launcher/download_release.py "fujinet-pc_*_macos-*.*"
-
     - name: '[Windows] Unzip FujiNet-PC into dist'
       if: ${{ startsWith(matrix.target, 'windows') && github.event.inputs.releaseBuild == 'true' }}
       run: 7z x -ofujinet-pc-launcher/dist fujinet-pc_*_${{ matrix.target }}.zip
 
-    # TODO use matrix.target instead of macos-*
     - name: '[macOS] Uncompress FujiNet-PC into launcher.app'
       if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
-      run: tar -xzf fujinet-pc_*_macos-*.tar.gz -C fujinet-pc-launcher/dist/launcher.app/Contents
+      run: tar -xzf fujinet-pc_*_${{ matrix.target }}.tar.gz -C fujinet-pc-launcher/dist/launcher.app/Contents
 
     - name: '[macOS] Remove dist/launcher (keep launcher.app only)'
       if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
