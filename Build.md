@@ -26,10 +26,8 @@ To build Windows executable using PyInstaller:
 
 ```cmd
 cd fujinet-pc-launcher
-pyinstaller --clean --onedir --noconfirm --noconsole --python-option u  --contents-directory . --name launcher --icon launcher\images\launcher-bg.ico --add-data launcher\images;images  launcher\__main__.py
+pyinstaller --clean --onedir --noconfirm --noconsole --python-option u  --name launcher --icon launcher\images\launcher-bg.ico --add-data launcher\images;images  launcher\__main__.py
 ```
-
-Note: The option `--contents-directory .` is currently needed for PyInstaller 6.x as the budle's data structure has changed.
 
 The result is in `dist` directory.
 
@@ -38,7 +36,7 @@ The result is in `dist` directory.
 To build macOS launcher.app using PyInstaller:
 
 ```sh
-pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --contents-directory . --name launcher --icon launcher/images/launcher-bg.ico --add-data launcher/images:images  launcher/__main__.py
+pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher/images/launcher-bg.ico --add-data launcher/images:images  launcher/__main__.py
 ```
 
 ## Linux
