@@ -1,5 +1,8 @@
 import sys
 
+import netsiohub.netsiohub as netsiohub
+import launcher.launcher as launcher
+
 def main():
     # dispatcher
     # - if this code is started instead of python interpreter (python -u -m netsiohub [args])
@@ -9,11 +12,9 @@ def main():
         del sys.argv[1]
         del sys.argv[1]
         del sys.argv[1]
-        import netsiohub.netsiohub as netsiohub
         return netsiohub.main() or 0
     else:
         try:
-            import launcher.launcher as launcher
             return launcher.main() or 0
         except KeyboardInterrupt:
             return 1
