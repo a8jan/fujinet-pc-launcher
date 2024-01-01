@@ -1,7 +1,9 @@
 import sys
 
-import netsiohub.netsiohub as netsiohub
+# FujiNet-PC Launcher
 import launcher.launcher as launcher
+# NetSIO Hub
+import netsiohub.hub as netsiohub
 
 def main():
     # dispatcher
