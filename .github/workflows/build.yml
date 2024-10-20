@@ -31,7 +31,7 @@ jobs:
     - name: Not release build
       if: ${{ github.event.inputs.releaseBuild == 'false' }}
       run: |
-        echo 'This build in not a release build.'
+        echo 'This build is not a release build.'
         echo 'Release tag will not be created.'
         echo 'However if release tag exists on HEAD, it will be used to make a release build.'
     - name: Prepeare for release build
@@ -129,9 +129,12 @@ jobs:
         #     target: ubuntu-18.04-amd64
         #     runner: ubuntu-18.04
         #     default-shell: bash
-          - name: macOS 12
-            target: macos-12
-            runner: macos-12
+          - name: macOS 13
+            target: macos-13
+            runner: macos-13
+          - name: macOS 14
+            target: macos-14
+            runner: macos-14
     # continue-on-error: true
     name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
@@ -207,20 +210,30 @@ jobs:
         mkdir -p fujinet-pc-launcher/dist/emulator
         cp -av fujinet-emulator-bridge/altirra-custom-device fujinet-pc-launcher/dist/emulator/Altirra
 
-    - name: 'Download latest FujiNet-PC release'
+    # - name: 'Download latest FujiNet-PC release'
+    #   if: ${{ github.event.inputs.releaseBuild == 'true' }}
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    #   run: |
+    #     python fujinet-pc-launcher/launcher/download_release.py "fujinet-pc_*_${{ matrix.target }}.*"
+
+    - name: 'Download FujiNet-PC nightly release'
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        python fujinet-pc-launcher/launcher/download_release.py "fujinet-pc_*_${{ matrix.target }}.*"
+        gh release list --json tagName,createdAt \
+        --jq 'map(select(.tagName | test("^nightly_fn_pc"))) | sort_by(.createdAt)[-1].tagName' \
+        --repo github.com/FujiNetWIFI/fujinet-firmware |\
+        xargs -I% gh release download % --repo github.com/FujiNetWIFI/fujinet-firmware
 
     - name: '[Windows] Unzip FujiNet-PC into dist'
       if: ${{ startsWith(matrix.target, 'windows') && github.event.inputs.releaseBuild == 'true' }}
-      run: 7z x -ofujinet-pc-launcher/dist fujinet-pc_*_${{ matrix.target }}.zip
+      run: 7z x -ofujinet-pc-launcher/dist fujinet-pc-ATARI_*_${{ matrix.target }}.zip
 
     - name: '[macOS] Uncompress FujiNet-PC into launcher.app'
       if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
-      run: tar -xzf fujinet-pc_*_${{ matrix.target }}.tar.gz -C fujinet-pc-launcher/dist/launcher.app/Contents
+      run: tar -xzf fujinet-pc-ATARI_*_${{ matrix.target }}.tar.gz -C fujinet-pc-launcher/dist/launcher.app/Contents
 
     - name: '[macOS] Remove dist/launcher (keep launcher.app only)'
       if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
