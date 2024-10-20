@@ -187,6 +187,7 @@ jobs:
     - name: '🚧 [Windows] Build FujiNet-PC Launcher'
       if: ${{ startsWith(matrix.target, 'windows') }}
       working-directory: fujinet-pc-launcher
+      shell: pwsh
       run: pyinstaller --clean --onedir --noconfirm --noconsole --python-option u --name launcher --icon launcher\images\launcher-bg.ico --add-data "launcher\images;images"  launcher\__main__.py
 
     - name: '🚧 [macOS] Build FujiNet-PC Launcher'
