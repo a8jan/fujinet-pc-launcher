@@ -41,7 +41,7 @@ jobs:
         echo 'New release tag will be created (or existing tag on HEAD will be used) to make a release build.'
     - name: '🧰 Checkout'
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Fetch tags
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
       run: git fetch --prune --unshallow --tags
@@ -61,12 +61,12 @@ jobs:
 
     steps:
     - name: '🧰 Checkout Launcher'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: fujinet-pc-launcher
 
     - name: '🧰 Checkout Emulator Bridge'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: FujiNetWIFI/fujinet-emulator-bridge
         path: fujinet-emulator-bridge
@@ -106,7 +106,7 @@ jobs:
       run: ls -lR dist
       
     - name: Upload build artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: fujinet-pc-scripts_${{ steps.version.outputs.release }}
         path: dist/**
@@ -142,12 +142,12 @@ jobs:
 
     steps:
     - name: '🧰 Checkout Launcher'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: fujinet-pc-launcher
 
     - name: '🧰 Checkout Emulator Bridge'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: FujiNetWIFI/fujinet-emulator-bridge
         path: fujinet-emulator-bridge
@@ -165,10 +165,9 @@ jobs:
         ls -lR .
 
     - name: Install Python
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-        architecture: 'x64'
 
     - name: List versions
       run: |
@@ -246,7 +245,7 @@ jobs:
         tar -czf ../fujinet-pc-bundle_${{ steps.version.outputs.release }}_${{ matrix.target }}.tgz *
 
     - name: Upload build artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: fujinet-pc-bundle_${{ steps.version.outputs.release }}_${{ matrix.target }}
         path: fujinet-pc-launcher/fujinet-pc-bundle_${{ steps.version.outputs.release }}_${{ matrix.target }}.tgz
@@ -260,7 +259,7 @@ jobs:
 
     steps:
     - name: Download build artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         path: release
 
@@ -289,7 +288,7 @@ jobs:
         done
 
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
           name: "FujiNet-PC Launcher ${{ needs.scripts.outputs.release_version }}"
           tag_name: release-${{ needs.scripts.outputs.release_version }}
