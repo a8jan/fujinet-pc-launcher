@@ -120,7 +120,6 @@ jobs:
         name: [Windows]
         target: [windows-x64]
         runner: [windows-latest]
-        default-shell: bash
         include:
         #   - name: Ubuntu 22.04
         #     target: ubuntu-22.04-amd64
@@ -139,6 +138,9 @@ jobs:
     # continue-on-error: true
     name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
 
     steps:
     - name: '🧰 Checkout Launcher'
