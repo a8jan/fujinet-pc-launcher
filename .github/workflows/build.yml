@@ -99,7 +99,7 @@ jobs:
         cp -av fujinet-emulator-bridge/altirra-custom-device dist/emulator/Altirra
         mkdir dist/fujinet-pc
         echo 'This directory is for FujiNet-PC executable.' > dist/fujinet-pc/README.txt
-        echo 'Visit https://github.com/FujiNetWIFI/fujinet-pc/releases to download binaries for your OS.' >> dist/fujinet-pc/README.txt
+        echo 'Visit https://github.com/FujiNetWIFI/fujinet-firmware/releases to download binaries for your OS.' >> dist/fujinet-pc/README.txt
         echo 'Place extracted files here.' >> dist/fujinet-pc/README.txt
 
     - name: List dist
@@ -132,9 +132,9 @@ jobs:
           - name: macOS 13
             target: macos-13
             runner: macos-13
-          - name: macOS 14
-            target: macos-14
-            runner: macos-14
+          # - name: macOS 14
+          #   target: macos-14
+          #   runner: macos-14
     # continue-on-error: true
     name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.runner }}
@@ -224,7 +224,7 @@ jobs:
         gh release list --json tagName,createdAt \
         --jq 'map(select(.tagName | test("^nightly_fn_pc"))) | sort_by(.createdAt)[-1].tagName' \
         --repo github.com/FujiNetWIFI/fujinet-firmware |\
-        xargs -I% gh release download % --repo github.com/FujiNetWIFI/fujinet-firmware
+        xargs -I% sh -c 'echo Downloading %; gh release download % --repo github.com/FujiNetWIFI/fujinet-firmware'
 
     - name: '[Windows] Unzip FujiNet-PC into dist'
       if: ${{ startsWith(matrix.target, 'windows') && github.event.inputs.releaseBuild == 'true' }}
