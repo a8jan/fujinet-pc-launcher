@@ -8,5 +8,5 @@ VERSION_FULL = "2312.0.ccb6a23"
 
 DESCRIPTION = "A launcher to control FujiNet-PC and NetSIO hub."
 
-COPYRIGHT = "(C) 2022-2023 apc"
+COPYRIGHT = "(C) 2022-2024 apc"
 WEBSITE = "https://github.com/a8jan/fujinet-pc-launcher"
