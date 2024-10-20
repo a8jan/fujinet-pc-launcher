@@ -120,6 +120,7 @@ jobs:
         name: [Windows]
         target: [windows-x64]
         runner: [windows-latest]
+        default-shell: bash
         include:
         #   - name: Ubuntu 22.04
         #     target: ubuntu-22.04-amd64
@@ -156,11 +157,9 @@ jobs:
       run: git fetch --prune --unshallow --tags
 
     - name: 'Copy NetSIO hub module'
-      shell: bash
       run: cp -av fujinet-emulator-bridge/fujinet-bridge/netsiohub fujinet-pc-launcher
       
     - name: 'List directories'
-      shell: bash
       run: |
         pwd
         ls -lR .
@@ -197,7 +196,6 @@ jobs:
     - name: 'Get launcher version'
       id: version
       working-directory: fujinet-pc-launcher
-      shell: bash
       run: |
         python -m launcher -V
         echo "launcher=$(python -m launcher -V | awk '{if(tolower($1)=="fujinet-pc" && tolower($2)=="launcher") print $3}')" >> $GITHUB_OUTPUT
@@ -205,7 +203,6 @@ jobs:
 
     - name: Update dist with emulator files
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
-      shell: bash
       run: | 
         mkdir -p fujinet-pc-launcher/dist/emulator
         cp -av fujinet-emulator-bridge/altirra-custom-device fujinet-pc-launcher/dist/emulator/Altirra
@@ -240,12 +237,10 @@ jobs:
       run: rm -rf fujinet-pc-launcher/dist/launcher
 
     - name: List dist
-      shell: bash
       run: ls -lR fujinet-pc-launcher/dist
       
     # To preserve executable bit on files (GH artifacts are automatically zipped and executable bit is lost)
     - name: 'Tar dist files'
-      shell: bash
       working-directory: fujinet-pc-launcher/dist
       run: |
         tar -czf ../fujinet-pc-bundle_${{ steps.version.outputs.release }}_${{ matrix.target }}.tgz *
