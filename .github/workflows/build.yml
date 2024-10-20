@@ -228,11 +228,15 @@ jobs:
 
     - name: '[Windows] Unzip FujiNet-PC into dist'
       if: ${{ startsWith(matrix.target, 'windows') && github.event.inputs.releaseBuild == 'true' }}
-      run: 7z x -ofujinet-pc-launcher/dist fujinet-pc-ATARI_*_${{ matrix.target }}.zip
+      run: |
+        7z x -ofujinet-pc-launcher/dist fujinet-pc-ATARI_*_${{ matrix.target }}.zip
+        mv fujinet-pc-launcher/dist/fujinet-pc-ATARI fujinet-pc-launcher/dist/fujinet-pc
 
     - name: '[macOS] Uncompress FujiNet-PC into launcher.app'
       if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
-      run: tar -xzf fujinet-pc-ATARI_*_${{ matrix.target }}.tar.gz -C fujinet-pc-launcher/dist/launcher.app/Contents
+      run: |
+        tar -xzf fujinet-pc-ATARI_*_${{ matrix.target }}.tar.gz -C fujinet-pc-launcher/dist/launcher.app/Contents
+        mv fujinet-pc-launcher/dist/launcher.app/Contents/fujinet-pc-ATARI fujinet-pc-launcher/dist/launcher.app/Contents/fujinet-pc
 
     - name: '[macOS] Remove dist/launcher (keep launcher.app only)'
       if: ${{ startsWith(matrix.target, 'macos') && github.event.inputs.releaseBuild == 'true' }}
