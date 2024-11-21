@@ -82,7 +82,7 @@ options:
 
 ### FujiNet-PC
 
-To allow the Launcher to control (start/stop and monitor) FujiNet-PC program the directory `fujinet-pc` must be populated with FujiNet-PC. Copy here the content of `build/dist` if it was built manually. Pre-build binaries for selected systems can be [downloaded](https://github.com/FujiNetWIFI/fujinet-pc/releases/latest) and files extracted here.
+To allow the Launcher to control (start/stop and monitor) FujiNet-PC program the directory `fujinet-pc` must be populated with FujiNet-PC. Copy here the content of `build/dist` if it was built manually. Pre-build binaries for selected systems can be [downloaded](https://github.com/FujiNetWIFI/fujinet-firmware/releases) and files extracted here.
 
 The content of `fujinet-pc` directory should look like this:
 
