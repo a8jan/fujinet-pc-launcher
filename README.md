@@ -1,6 +1,6 @@
 # FujiNet-PC Launcher
 
-Brings [#FujiNet](https://fujinet.online/) experience into [Altirra](https://virtualdub.org/altirra.html) Atari emulator. It is simple launcher GUI to control [FujiNet-PC](https://github.com/FujiNetWIFI/fujinet-pc) and [NetSIO hub](https://github.com/FujiNetWIFI/fujinet-emulator-bridge). 
+Brings [#FujiNet](https://fujinet.online/) experience into [Altirra](https://virtualdub.org/altirra.html) Atari emulator. It is simple launcher GUI to control [FujiNet-PC](https://github.com/FujiNetWIFI/fujinet-firmware) and [NetSIO hub](https://github.com/FujiNetWIFI/fujinet-emulator-bridge). 
 
 ![Launcher](launcher.png)
 
@@ -32,6 +32,6 @@ Note: Wine can be used to run Altirra on macOS and Linux.
 
 Check for setup instructions [here](Install.md).
 
-An alternative to all in one bundle is a variant which includes **scripts** only, also available in [Releases](https://github.com/a8jan/fujinet-pc-launcher/releases) section. The scripts package contains: Launcher GUI and NetSIO hub Python modules and NetSIO custom device for Altirra. It does not contain any binaries. To run scripts Python 3 with necessary libraries must be installed on the system and FujiNet-PC binaries ([downloaded](https://github.com/FujiNetWIFI/fujinet-pc/releases/latest) or [built](https://github.com/FujiNetWIFI/fujinet-pc#build-instructions)) have to be placed into `fujinet-pc` directory.
+An alternative to all in one bundle is a variant which includes **scripts** only, also available in [Releases](https://github.com/a8jan/fujinet-pc-launcher/releases) section. The scripts package contains: Launcher GUI and NetSIO hub Python modules and NetSIO custom device for Altirra. It does not contain any binaries. To run scripts Python 3 with necessary libraries must be installed on the system and FujiNet-PC binaries ([downloaded](https://github.com/FujiNetWIFI/fujinet-firmware/releases) or [built](https://github.com/FujiNetWIFI/fujinet-pc#build-instructions)) have to be placed into `fujinet-pc` directory.
 
 Check how to run FujiNet-PC Launcher or NetSIO hub as Python scripts [here](ScriptsUsage.md).

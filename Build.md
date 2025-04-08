@@ -1,6 +1,6 @@
 # Build instructions
 
-The idea is to automate the build process to create the bundle zip file with all needed components: [FujiNet-PC](https://github.com/FujiNetWIFI/fujinet-pc), [SD Card](https://github.com/FujiNetWIFI/fujinet-sd-card) files and [Bridge to the emulator](https://github.com/FujiNetWIFI/fujinet-emulator-bridge). This is work in progress.
+The idea is to automate the build process to create the bundle zip file with all needed components: [FujiNet-PC](https://github.com/FujiNetWIFI/fujinet-firmware), [SD Card](https://github.com/FujiNetWIFI/fujinet-sd-card) files and [Bridge to the emulator](https://github.com/FujiNetWIFI/fujinet-emulator-bridge). This is work in progress.
 
 The instructions below may be incomplete. I need to keep my notes somewhere ;-)
 
