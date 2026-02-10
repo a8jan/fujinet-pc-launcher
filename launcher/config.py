@@ -67,6 +67,8 @@ class Config:
         self.netsio_rundir : AnyStr = os.path.dirname(self.launcher_rundir)
         # module name
         self.netsio_module : str = "netsiohub"
+        # auto-start NetSIO hub
+        self.netsio_autostart : bool = True
 
         # Launcher label
         self.launcher_label : str = ""
@@ -140,6 +142,7 @@ class Config:
         arg_parser.add_argument('-s', '--sd', type=str, help='Path to SD directory (SD)')
         arg_parser.add_argument('-p', '--port', type=int, help='TCP port used by Altirra NetSIO custom device (9996)')
         arg_parser.add_argument('-r', '--netsio-port', type=int, help='UDP port used by NetSIO peripherals (9997)')
+        arg_parser.add_argument('--nohub', dest='nohub', action='store_true', help='Do not start NetSIO hub automatically')
         # -i N is shortcut for -l FujiNet-N -u localhost:8000+N -c FujiNet-N/fnconfig.ini -s FujiNet-N/SD -r 9000+N -p 10000+N"
         arg_parser.add_argument('-i', '--instance', type=int, help="FujiNet instance ID")
         arg_parser.add_argument('-v', '--verbose', dest='verbose', action='store_true', help='Log emulation device commands')
@@ -169,7 +172,7 @@ class Config:
 
         if args.label is not None:
             self.launcher_label = args.label
-            print("label:", self.launcher_label)
+            print("Label:", self.launcher_label)
 
         if args.gui_scale is not None:
             if args.gui_scale >= 0.3 and args.gui_scale <= 3.0:
@@ -193,6 +196,10 @@ class Config:
             self.fujinet_webui_host = host or None
             self.fujinet_webui_port = to_port(port_str)
             print("WebUI host:", self.fujinet_webui_host, "port:", self.fujinet_webui_port)
+
+        if args.nohub is not None:
+            self.netsio_autostart = not args.nohub
+            print("NetSIO hub auto-start:", self.netsio_autostart)
 
         if args.netsio_port is not None:
             self.netsio_port = to_port(args.netsio_port)
