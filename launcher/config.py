@@ -86,7 +86,11 @@ class Config:
 
 
     def image_path(self, fname):
-        return os.path.join(self.launcher_dir, "images", fname)
+        if getattr(sys, 'frozen', False):
+            base = getattr(sys, '_MEIPASS', os.path.dirname(sys.executable))
+        else:
+            base = self.launcher_rundir
+        return os.path.join(base, "images", fname)
 
     def print_dir_info(self):
         print("launcher dir:", self.launcher_dir)
