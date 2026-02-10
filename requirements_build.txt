@@ -1,4 +1,4 @@
 wxpython
 requests
 pillow
-pyinstaller<6.0
+pyinstaller

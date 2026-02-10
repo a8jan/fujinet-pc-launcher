@@ -39,12 +39,12 @@ jobs:
       run: |
         echo 'This build is release build.'
         echo 'New release tag will be created (or existing tag on HEAD will be used) to make a release build.'
+    # if releaseBuild is true, checkout code and prepare release tag (if not exists)
     - name: '🧰 Checkout'
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
       uses: actions/checkout@v4
-    - name: Fetch tags
-      if: ${{ github.event.inputs.releaseBuild == 'true' }}
-      run: git fetch --prune --unshallow --tags
+      with:
+        fetch-depth: 0
     - name: Prepare release tag
       if: ${{ github.event.inputs.releaseBuild == 'true' }}
       run: python build_version.py release:push ${{ github.event.inputs.releaseVersion }}
@@ -64,16 +64,13 @@ jobs:
       uses: actions/checkout@v4
       with:
         path: fujinet-pc-launcher
+        fetch-depth: 0
 
     - name: '🧰 Checkout Emulator Bridge'
       uses: actions/checkout@v4
       with:
         repository: FujiNetWIFI/fujinet-emulator-bridge
         path: fujinet-emulator-bridge
-
-    - name: Fetch tags
-      working-directory: fujinet-pc-launcher
-      run: git fetch --prune --unshallow --tags
 
     - name: Update launcher version
       working-directory: fujinet-pc-launcher
