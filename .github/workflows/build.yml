@@ -11,6 +11,10 @@ on:
         description: 'Prepare release bundle (adds tag)'
         type: boolean
         default: false
+      useNightlyFujiNet:
+        description: 'Bundle latest nightly FujiNet-PC release instead of latest stable release'
+        type: boolean
+        default: false
       doRelease:
         description: 'Create GitHub Release'
         type: boolean
@@ -201,8 +205,18 @@ jobs:
     #   run: |
     #     python fujinet-pc-launcher/launcher/download_release.py "fujinet-pc_*_${{ matrix.target }}.*"
 
-    - name: 'Download FujiNet-PC nightly release'
-      if: ${{ github.event.inputs.releaseBuild == 'true' }}
+    - name: 'Download latest FujiNet-PC stable release'
+      if: ${{ github.event.inputs.releaseBuild == 'true' && github.event.inputs.useNightlyFujiNet == 'false' }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        gh release list --json tagName,createdAt \
+        --jq 'map(select(.tagName | test("^v[0-9]+\\.[0-9]+"))) | sort_by(.createdAt)[-1].tagName' \
+        --repo github.com/FujiNetWIFI/fujinet-firmware |\
+        xargs -I% sh -c 'echo Downloading %; gh release download % --repo github.com/FujiNetWIFI/fujinet-firmware'
+
+    - name: 'Download latest FujiNet-PC nightly release'
+      if: ${{ github.event.inputs.releaseBuild == 'true' && github.event.inputs.useNightlyFujiNet == 'true' }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
