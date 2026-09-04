@@ -34,6 +34,8 @@ class Config:
         self.gui_scale : float = 0.6
         # Window will stay on top of other windows
         self.stay_on_top: bool = False
+        # Save logs to file (disabled by default)
+        self.log_to_file: bool = False
 
         # # parsed command line arguments
         # self.args : argparse.Namespace = None
@@ -70,6 +72,11 @@ class Config:
         # auto-start NetSIO hub
         self.netsio_autostart : bool = True
 
+        # base directory for user data and logs
+        base_dir = os.path.dirname(os.path.abspath(self.launcher_dir)) if self.launcher_dir and os.path.basename(os.path.abspath(self.launcher_dir)).lower() == "launcher" else (os.path.abspath(self.launcher_dir) if self.launcher_dir else os.path.abspath(self.netsio_rundir))
+        # log directory
+        self.log_dir : AnyStr = os.path.join(base_dir, "log")
+
         # Launcher label
         self.launcher_label : str = ""
         # path to FN configuration file
@@ -99,6 +106,8 @@ class Config:
         print("fujinet rundir:", self.fujinet_rundir)
         print("netsio rundir:", self.netsio_rundir)
         print("netsio module:", self.netsio_module)
+        print("log dir:", self.log_dir)
+        print("log to file:", self.log_to_file)
 
     @property
     def fujinet_base_url(self) -> str:
@@ -144,6 +153,8 @@ class Config:
         arg_parser.add_argument('-u', '--url', type=str, help='FujiNet web interface ([0.0.0.0][:8000])')
         arg_parser.add_argument('-c', '--fnconfig', help='Path to FujiNet configuration file (fnconfig.ini)')
         arg_parser.add_argument('-s', '--sd', type=str, help='Path to SD directory (SD)')
+        arg_parser.add_argument('--log-dir', type=str, help='Path to log directory (log)')
+        arg_parser.add_argument('--log-file', dest='log_to_file', action='store_true', help='Enable continuous logging to file')
         arg_parser.add_argument('-p', '--port', type=int, help='TCP port used by Altirra NetSIO custom device (9996)')
         arg_parser.add_argument('-r', '--netsio-port', type=int, help='UDP port used by NetSIO peripherals (9997)')
         arg_parser.add_argument('--nohub', dest='nohub', action='store_true', help='Do not start NetSIO hub automatically')
@@ -194,6 +205,14 @@ class Config:
         if args.sd is not None:
             self.sd_path = os.path.join(os.path.dirname(self.launcher_dir), args.sd)
             print("SD:", self.sd_path)
+
+        if args.log_dir is not None:
+            self.log_dir = os.path.abspath(args.log_dir)
+            print("Log dir:", self.log_dir)
+
+        if args.log_to_file:
+            self.log_to_file = True
+            print("Log to file:", self.log_to_file)
 
         if args.url is not None:
             host, port_str = args.url.split(':', 1) if ':' in args.url else (args.url, None)
