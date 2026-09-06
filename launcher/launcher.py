@@ -1,7 +1,9 @@
-import wx
-import wx.adv
+import os
+import subprocess
 import sys
 import requests
+import wx
+import wx.adv
 
 from launcher.config import cfg
 from launcher.logview import Logger, LogFrame
@@ -154,6 +156,8 @@ class TopFrame(wx.Frame):
     MENU_SD_OPEN = new_id()
     MENU_SD_SET = new_id()
     MENU_LOG_VIEW = new_id()
+    MENU_LOG_SAVE = new_id()
+    MENU_LOG_OPEN = new_id()
     MENU_ON_TOP = new_id()
 
     def __init__(self, parent):
@@ -174,7 +178,7 @@ class TopFrame(wx.Frame):
         self.stay_on_top = cfg.stay_on_top
 
         self.Create(parent, wx.ID_ANY, self.label or "FujiNet-PC",
-                    style=wx.FRAME_SHAPED | wx.SIMPLE_BORDER |
+                    style=wx.FRAME_SHAPED | wx.BORDER_NONE |
                     (wx.STAY_ON_TOP if self.stay_on_top else 0) |
                     # this allows to minimize shaped window by clicking its icon on task bar
                     (wx.MINIMIZE_BOX if wx.Platform == '__WXMSW__' else 0))
@@ -272,6 +276,8 @@ class TopFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_menu_item, id=self.MENU_ON_TOP)
         self.Bind(wx.EVT_MENU, self.on_menu_item, id=self.MENU_SD_OPEN)
         self.Bind(wx.EVT_MENU, self.on_menu_item, id=self.MENU_SD_SET)
+        self.Bind(wx.EVT_MENU, self.on_menu_item, id=self.MENU_LOG_SAVE)
+        self.Bind(wx.EVT_MENU, self.on_menu_item, id=self.MENU_LOG_OPEN)
         self.Bind(wx.EVT_MENU, self.on_menu_item, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_MENU, self.on_quit, id=wx.ID_EXIT)
 
@@ -397,6 +403,7 @@ class TopFrame(wx.Frame):
         self.stop_tasks()
 
     def good_bye(self):
+        self.log.close()
         self.Destroy()
 
     def on_left_down(self, evt):
@@ -459,7 +466,9 @@ class TopFrame(wx.Frame):
         menu.AppendSubMenu(menu_hub, "NetSIO hub{}".format(status_str(self.netsio)))
         menu.AppendSeparator()
         menu.Append(self.MENU_ON_TOP, "Stay on top", kind=wx.ITEM_CHECK).Check(self.stay_on_top)
+        menu.Append(self.MENU_LOG_SAVE, "Save log to file", kind=wx.ITEM_CHECK).Check(self.log.file_logging)
         menu.Append(self.MENU_LOG_VIEW, "Show log")
+        menu.Append(self.MENU_LOG_OPEN, "Open log folder")
         menu.Append(wx.ID_ABOUT, "About")
         menu.AppendSeparator()
         menu.Append(wx.ID_EXIT, "&Quit\tCtrl+Q")  # TODO make Ctrl+Q to quit
@@ -493,8 +502,12 @@ class TopFrame(wx.Frame):
             self.open_sd_folder()
         elif eid == self.MENU_SD_SET:
             self.select_sd_folder()
+        elif eid == self.MENU_LOG_SAVE:
+            self.toggle_log_to_file()
         elif eid == self.MENU_LOG_VIEW:
             self.show_log()
+        elif eid == self.MENU_LOG_OPEN:
+            self.open_log_folder()
         elif eid == self.MENU_ON_TOP:
             self.toggle_stay_on_top()
         elif eid == wx.ID_ABOUT:
@@ -517,9 +530,34 @@ class TopFrame(wx.Frame):
         style = style | wx.STAY_ON_TOP if self.stay_on_top else style & ~wx.STAY_ON_TOP
         self.SetWindowStyle(style)
 
+    def toggle_log_to_file(self):
+        new_state = not self.log.file_logging
+        self.log.set_file_logging(new_state)
+        self.log.write("File logging {}\n".format("enabled" if new_state else "disabled"))
+
+    def open_folder(self, path):
+        try:
+            path = os.path.abspath(path)
+            os.makedirs(path, exist_ok=True)
+            self.log.write('Open folder: {}\n'.format(path))
+            if sys.platform == 'win32':
+                norm_path = os.path.normpath(path)
+                try:
+                    subprocess.Popen(['explorer', norm_path])
+                except Exception:
+                    os.startfile(norm_path)
+            elif sys.platform == 'darwin':
+                subprocess.Popen(['open', path])
+            else:
+                subprocess.Popen(['xdg-open', path])
+        except Exception as e:
+            self.log.write('Failed to open folder {}: {}\n'.format(path, e))
+
     def open_sd_folder(self):
-        self.log.write('Open file:{}'.format(cfg.fujinet_sd_folder))
-        wx.LaunchDefaultBrowser('file:{}'.format(cfg.fujinet_sd_folder))
+        self.open_folder(cfg.fujinet_sd_folder)
+
+    def open_log_folder(self):
+        self.open_folder(cfg.log_dir)
 
     def select_sd_folder(self):
         new_sd_dir = wx.DirSelector("Choose SD folder", cfg.fujinet_sd_folder)
